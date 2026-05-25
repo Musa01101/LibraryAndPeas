@@ -16,24 +16,28 @@ public class LibrarySystem {
     private FileManager fileManager;
 
     public LibrarySystem() {
-        // Initialize the lists immediately to prevent NullPointerExceptions
         this.catalog = new ArrayList<>();
         this.registeredStudents = new ArrayList<>();
         this.registeredStaff = new ArrayList<>();
         this.studyRooms = new String[5];
-        // (DONE!!!)TBA: Later add the File I/O loading logic right here!
         this.fileManager = new FileManager();
         try {
-            // 1. MUST load Books first to build the master catalog
+            // 1. Load Books
             this.catalog = fileManager.loadBooks();
-            // 2. Now load people and pass them the catalog so they can link their backpacks!
-            this.registeredStudents = fileManager.loadStudents(this.catalog);
+
+            // 2. Load People (Look! loadStudents is empty now!)
+            this.registeredStudents = fileManager.loadStudents();
             this.registeredStaff = fileManager.loadLibrarians(this.catalog);
+
+            // 3. Load Transactions to link the books to the students!
+            fileManager.loadTransactions(this.registeredStudents, this.catalog);
+
             System.out.println("System Boot: All library data loaded successfully.");
         } catch (Exception e) {
             System.out.println("System Boot Warning: Could not load existing data. Starting fresh.");
             System.out.println(e.getMessage());
-            // Failsafe: Initialize empty lists so the program doesn't crash on initial load
+
+            // Failsafe
             this.catalog = new ArrayList<>();
             this.registeredStudents = new ArrayList<>();
             this.registeredStaff = new ArrayList<>();
@@ -47,6 +51,7 @@ public class LibrarySystem {
             fileManager.saveBooks(this.catalog);
             fileManager.saveStudents(this.registeredStudents);
             fileManager.saveLibrarians(this.registeredStaff);
+            fileManager.saveTransactions(this.registeredStudents);
             System.out.println("Shutdown Complete: All data safely saved.");
         } catch (Exception e) {
             System.out.println("ERROR: Failed to save system data!");
@@ -83,6 +88,10 @@ public class LibrarySystem {
             // TODO: Replace with Suhail's BookUnavailableException
             throw new Exception("Error: No available copies left for this book.");
         }
+        //  NEW: Check the Borrowing Cap
+        if (foundStudent.getBorrowedBooks().size() >= 5) {
+            throw new Exception("Error: Student has reached the maximum borrowing limit of 5 books.");
+        }
         // Step 4: If yes, subtract 1 copy and add the book to the student's borrowed list
         foundBook.setAvailableCopies(foundBook.getAvailableCopies() - 1);
         foundStudent.borrowBook(foundBook);
@@ -90,6 +99,7 @@ public class LibrarySystem {
         // Step 5: If no, throw  BookUnavailableException, when suhali gives the package
 
     }
+
     // The Return of Books
     public void returnBook(String studentId, String bookId) throws Exception {
         //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
@@ -125,6 +135,7 @@ public class LibrarySystem {
 
         System.out.println("Transaction Successful: " + foundBookR.getTitle() + " returned by " + foundStudentR.getName());
     }
+
     //The Reservation of Books
     public void reserveBook(String studentId, String bookId) throws Exception {
         //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
@@ -147,6 +158,7 @@ public class LibrarySystem {
         foundStudentRes.addReserveBook(foundBookRes);
         System.out.println("Reservation Successful: '" + foundBookRes.getTitle() + "' has been reserved for " + foundStudentRes.getName());
     }
+
     //  Manual Reservation Cancellation
     public void cancelReservation(String studentId, String bookId) throws Exception {
 
@@ -184,12 +196,17 @@ public class LibrarySystem {
         studyRooms[roomIndex] = studentId;
         System.out.println("Success: Room " + roomNumber + " booked for Student ID: " + studentId);
     }
+
     //  Study Room Cancellation
     public void cancelRoomBooking(int roomNumber) throws Exception {
-        if (roomNumber < 1 || roomNumber > 5) {throw new Exception("Error: Invalid room number. Please choose 1-5.");}
+        if (roomNumber < 1 || roomNumber > 5) {
+            throw new Exception("Error: Invalid room number. Please choose 1-5.");
+        }
         int roomIndex = roomNumber - 1;
         // If the room is already empty, throw an error
-        if (studyRooms[roomIndex] == null) {throw new Exception("Error: Room " + roomNumber + " is already empty.");}
+        if (studyRooms[roomIndex] == null) {
+            throw new Exception("Error: Room " + roomNumber + " is already empty.");
+        }
         // To cancel it just set the student's ID to null
         studyRooms[roomIndex] = null;
         System.out.println("Success: Room " + roomNumber + " is now empty and available.");

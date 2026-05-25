@@ -15,6 +15,7 @@ public class FileManager {
     private static final String BOOKS_FILE = "books.txt";
     private static final String STUDENT_FILE = "students.txt";
     private static final String STAFF_FILE = "staff.txt";
+    private static final String TRANSACTIONS_FILE = "transactions.txt";
 
 
     //______Books______
@@ -60,6 +61,7 @@ public class FileManager {
         }
         return loadedCatalog;
     }
+
     //helper method;
     // I didn't do the same helper method for other methods,as making them would be too messy
     // as they implement ArrayList and call for catalog and the line;
@@ -82,43 +84,14 @@ public class FileManager {
 
 
     //______Students______
-    //Saving the Students method
     public void saveStudents(ArrayList<Student> registeredStudents) throws Exception {
         try (PrintWriter out = new PrintWriter(STUDENT_FILE)) {
             for (Student student : registeredStudents) {
-                //Grab the data
-                String id = student.getUserId();
-                String name = student.getName();
-                String major = student.getMajor();
-                String email = student.getEmail();
-                String password = student.getPassword();
-
-
-                //The borrowed books list of a student
-                StringBuilder borrowedIds = new StringBuilder();
-                for (Book book : student.getBorrowedBooks()) {
-                    borrowedIds.append(book.getBookId()).append(";"); // Glue them with a semicolon
-                }
-                // Clean up: Remove the very last semicolon if the list wasn't empty
-                if (!borrowedIds.isEmpty()) {
-                    borrowedIds.setLength(borrowedIds.length() - 1);
-                }
-                // The Reserved Books list of students
-                StringBuilder reservedIds = new StringBuilder();
-                for (Book book : student.getReservedBooks()) {
-                    reservedIds.append(book.getBookId()).append(";");
-                }
-                if (!reservedIds.isEmpty()) {
-                    reservedIds.setLength(reservedIds.length() - 1);
-                }
-                // 4. Write the final assembled line to the text file
-                out.println(major + ","
-                        + name + ","
-                        + id + ","
-                        + email + ","
-                        + password + "," +
-                        borrowedIds + ","
-                        + reservedIds);
+                out.println(student.getMajor() + "," +
+                        student.getName() + "," +
+                        student.getUserId() + "," +
+                        student.getEmail() + "," +
+                        student.getPassword());
             }
             System.out.println("Success: Students have been saved to " + STUDENT_FILE);
         } catch (Exception e) {
@@ -126,59 +99,76 @@ public class FileManager {
         }
     }
 
-    //Loading the Student method
-    public ArrayList<Student> loadStudents(ArrayList<Book> catalog) throws Exception {
+    public ArrayList<Student> loadStudents() throws Exception {
         ArrayList<Student> loadedStudents = new ArrayList<>();
         File file = new File(STUDENT_FILE);
-        if (!file.exists()) {
-            System.out.println("Notice: No existing students found. Starting with an empty student.");
-            return loadedStudents;
-        }
+        if (!file.exists()) return loadedStudents;
+
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                // Chop the line of text into an array using the comma as the cut point
-                String[] data = line.split(",");
-                // Rebuild the Book object
-                // Note to self: Make sure the order here matches the order I saved them in Part 1!
-                String major = data[0];
-                String name = data[1];
-                String userId = data[2];
-                String email = data[3];
-                String password = data[4];
-
-                Student rebuiltStudent = new Student(major, name, userId, email, password);
-                //Rebuild the Borrowed Books List
-                if (data.length > 5 && !data[5].isEmpty()) {
-                    String[] borrowedIds = data[5].split(";");
-                    for (String bId : borrowedIds) {
-                        for (Book book : catalog) {
-                            if (book.getBookId().equals(bId)) {
-                                rebuiltStudent.borrowBook(book);
-                                break;
-                            }
-                        }
-                    }
-                }
-                // Rebuild the Reserved Books List
-                if (data.length > 6 && !data[6].isEmpty()) {
-                    String[] reservedIds = data[6].split(";");
-                    for (String rId : reservedIds) {
-                        for (Book book : catalog) {
-                            if (book.getBookId().equals(rId)) {
-                                rebuiltStudent.addReserveBook(book);
-                                break;
-                            }
-                        }
-                    }
-                }
-                loadedStudents.add(rebuiltStudent);
+                String[] data = scanner.nextLine().split(",");
+                loadedStudents.add(new Student(data[0], data[1], data[2], data[3], data[4]));
             }
-            System.out.println("Success: Catalog successfully loaded from " + STUDENT_FILE);
+            System.out.println("Success: Students loaded from " + STUDENT_FILE);
         } catch (Exception e) {
-            throw new Exception("Error loading students from file: " + e.getMessage());
+            throw new Exception("Error loading students: " + e.getMessage());
         }
         return loadedStudents;
+    }
+
+    //______Transactions (The Ledger)______
+    public void saveTransactions(ArrayList<Student> students) throws Exception {
+        try (PrintWriter out = new PrintWriter(TRANSACTIONS_FILE)) {
+            for (Student student : students) {
+                for (Book book : student.getBorrowedBooks()) {
+                    out.println(student.getUserId() + "," + book.getBookId() + ",BORROWED");
+                }
+                for (Book book : student.getReservedBooks()) {
+                    out.println(student.getUserId() + "," + book.getBookId() + ",RESERVED");
+                }
+            }
+            System.out.println("Success: Transactions saved to " + TRANSACTIONS_FILE);
+        } catch (Exception e) {
+            throw new Exception("Error saving transactions: " + e.getMessage());
+        }
+    }
+
+    public void loadTransactions(ArrayList<Student> students, ArrayList<Book> catalog) throws Exception {
+        File file = new File(TRANSACTIONS_FILE);
+        if (!file.exists()) return;
+
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String[] data = scanner.nextLine().split(",");
+                String studentId = data[0];
+                String bookId = data[1];
+                String status = data[2];
+
+                Student foundStudent = null;
+                Book foundBook = null;
+
+                for (Student s : students) {
+                    if (s.getUserId().equals(studentId)) {
+                        foundStudent = s;
+                        break;
+                    }
+                }
+                for (Book b : catalog) {
+                    if (b.getBookId().equals(bookId)) {
+                        foundBook = b;
+                        break;
+                    }
+                }
+
+                if (foundStudent != null && foundBook != null) {
+                    if (status.equals("BORROWED")) foundStudent.borrowBook(foundBook);
+                    else if (status.equals("RESERVED")) foundStudent.addReserveBook(foundBook);
+                }
+            }
+            System.out.println("Success: Transactions loaded from " + TRANSACTIONS_FILE);
+        } catch (Exception e) {
+            throw new Exception("Error loading transactions: " + e.getMessage());
+        }
     }
 
 
