@@ -92,8 +92,9 @@ public class FileManager {
                         student.getUserId() + "," +
                         student.getEmail() + "," +
                         student.getPassword());
+                System.out.println("Success: " + student.getName() + " has been saved!");
             }
-            System.out.println("Success: Students have been saved to " + STUDENT_FILE);
+            System.out.println("Finished writing to " + STUDENT_FILE);
         } catch (Exception e) {
             throw new Exception("Error saving students to a file: " + e.getMessage());
         }
@@ -102,7 +103,10 @@ public class FileManager {
     public ArrayList<Student> loadStudents() throws Exception {
         ArrayList<Student> loadedStudents = new ArrayList<>();
         File file = new File(STUDENT_FILE);
-        if (!file.exists()) return loadedStudents;
+        if (!file.exists()) {
+            System.out.println("Notice: No existing student.txt found. Starting with an empty catalog.");
+            return loadedStudents;
+        }
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
@@ -197,8 +201,9 @@ public class FileManager {
                         + password + ","
                         + staffNumber + ","
                         + managedIds);
-                System.out.println("Success: Staff saved to " + STAFF_FILE);
+                System.out.println("Success: " + staff.getName() + " has been saved!");
             }
+            System.out.println("Finished writing to " + STAFF_FILE);
         } catch (Exception e) {
             throw new Exception("Error saving staff to file: " + e.getMessage());
         }
