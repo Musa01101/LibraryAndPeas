@@ -233,7 +233,7 @@ public class FileManager {
                 String password = data[3];
                 String staffNumber = data[4];
 
-                Librarian rebuiltLibrarian = new Librarian(userId, email, password, staffNumber, name);
+                Librarian rebuiltLibrarian = new Librarian(name, userId, email, password, staffNumber);
                 // The Linking Trick for Managed Books the same as per student method
                 if (data.length > 5 && !data[5].isEmpty()) {
                     String[] managedIds = data[5].split(";");
