@@ -26,6 +26,7 @@ public class Book {
         return bookId;
     }
 
+
     public void setBookId(String bookId) {
         this.bookId = bookId;
     }
@@ -93,4 +94,8 @@ public class Book {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.title + " (ID: " + this.bookId + ")";
+    }
 }

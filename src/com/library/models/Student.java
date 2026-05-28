@@ -62,5 +62,10 @@ public class Student extends User {
             this.reservedBooks.remove(book);
         }
     }
+
+    @Override
+    public String toString() {
+        return this.getName() + " (ID: " + this.getUserId() + ", Major: " + this.major + ")";
+    }
 }
 
