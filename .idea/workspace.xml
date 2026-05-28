@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Added some polymorphism implementation">
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Added a new example, and ToString methods to some classes">
+      <change afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TMP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TMP.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Book.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/Librarian.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Librarian.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Student.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LibraryAndPeace.iml" beforeDir="false" afterPath="$PROJECT_DIR$/LibraryAndPeace.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,29 +42,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.TMP.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.LibraryGUI.executor": "Run",
+    "Application.TMP.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.farmland.models" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.LibraryGUI">
+    <configuration name="LibraryGUI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="LibraryGUI" />
+      <module name="LibraryAndPeace" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\musam\javafx-sdk-21.0.11\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TMP" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="TMP" />
       <module name="LibraryAndPeace" />
@@ -74,8 +82,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.LibraryGUI" />
+      <item itemvalue="Application.TMP" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.LibraryGUI" />
         <item itemvalue="Application.TMP" />
       </list>
     </recent_temporary>
@@ -144,7 +157,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779981196436</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Added a new example, and ToString methods to some classes">
+      <option name="closed" value="true" />
+      <created>1779985384611</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1779985384611</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -154,6 +175,7 @@
     <MESSAGE value="Added librarians in addbook method, so i can implemnt managed books more prorpelry" />
     <MESSAGE value="&#10;Bla-vla" />
     <MESSAGE value="Added some polymorphism implementation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added some polymorphism implementation" />
+    <MESSAGE value="Added a new example, and ToString methods to some classes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a new example, and ToString methods to some classes" />
   </component>
 </project>
