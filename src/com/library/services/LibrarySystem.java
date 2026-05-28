@@ -60,9 +60,13 @@ public class LibrarySystem {
     }
 
     //  Management Methods
-    public void addBookToCatalog(Book book) {
+    public void addBookToCatalog(Book book, Librarian libararian) {
         if (book != null && !catalog.contains(book)) {
             catalog.add(book);
+
+            if(libararian != null) {
+                libararian.addManagedBook(book);
+            }
         }
     }
 
