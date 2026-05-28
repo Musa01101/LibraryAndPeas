@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Changed many things, some bugs and stuff and yeah">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Added librarians in addbook method, so i can implemnt managed books more prorpelry">
+      <change beforePath="$PROJECT_DIR$/src/TMP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TMP.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -118,13 +117,22 @@
       <option name="project" value="LOCAL" />
       <updated>1779726397572</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added librarians in addbook method, so i can implemnt managed books more prorpelry">
+      <option name="closed" value="true" />
+      <created>1779980463541</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1779980463545</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="File Manager/rebuilt Librarian fixed" />
     <MESSAGE value="Added borrowng of books by Stduents cap and also added transaction.txt implementatio" />
     <MESSAGE value="Changed many things, some bugs and stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed many things, some bugs and stuff" />
+    <MESSAGE value="Added librarians in addbook method, so i can implemnt managed books more prorpelry" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added librarians in addbook method, so i can implemnt managed books more prorpelry" />
   </component>
 </project>
