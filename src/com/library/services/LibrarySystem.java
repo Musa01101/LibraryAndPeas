@@ -3,6 +3,7 @@ package com.library.services;
 import com.library.models.Book;
 import com.library.models.Librarian;
 import com.library.models.Student;
+import com.library.models.User;
 
 import java.util.ArrayList;
 
@@ -43,7 +44,30 @@ public class LibrarySystem {
             this.registeredStaff = new ArrayList<>();
         }
     }
+//getter methods for our "data base"
+    public ArrayList<Book> getCatalog() {
+        return this.catalog;
+    }
 
+    public ArrayList<Student> getRegisteredStudents() {
+        return this.registeredStudents;
+    }
+
+    public ArrayList<Librarian> getRegisteredStaff() {
+        return this.registeredStaff;
+    }
+
+    public User findUserById(String userId) throws Exception {
+        // Scan students
+        for (Student s : registeredStudents) {
+            if (s.getUserId().equals(userId)) return s;
+        }
+        // Scan staff
+        for (Librarian l : registeredStaff) {
+            if (l.getUserId().equals(userId)) return l;
+        }
+        throw new Exception("Error: User ID '" + userId + "' not found.");
+    }
     //  System Shutdown (Save all data to files)
     public void saveSystemData() {
         try {
