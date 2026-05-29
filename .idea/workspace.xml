@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Added simple GUI; Log in for now only">
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Now good GUI, we can log in or sig in as a librarian and as a student, the ID is generated randomly and uniquely, also there were a problem where if we left everything blank it would record on student or staff txt  as null student and stuff which I implemented in my classes just in case of something bad happening, and it worked as swiss clock, Because I made one firewall, being that user need to confirm password if the user left it as blank(null) the system would allow him to enter and, ergo creating faulty credentials ,but I didn't want any garbage in .txts, so I made a second firewall which made sure to fields are left blank and allowed to use major from dropdown boc rather than free text box">
+      <change afterPath="$PROJECT_DIR$/src/com/library/models/StudyRoom.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/LibraryGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +36,9 @@
     &quot;accountId&quot;: &quot;ba705b8d-f868-4e57-809e-e29e4d21eb89&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -180,7 +186,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779990453166</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Now good GUI, we can log in or sig in as a librarian and as a student, the ID is generated randomly and uniquely, also there were a problem where if we left everything blank it would record on student or staff txt  as null student and stuff which I implemented in my classes just in case of something bad happening, and it worked as swiss clock, Because I made one firewall, being that user need to confirm password if the user left it as blank(null) the system would allow him to enter and, ergo creating faulty credentials ,but I didn't want any garbage in .txts, so I made a second firewall which made sure to fields are left blank and allowed to use major from dropdown boc rather than free text box">
+      <option name="closed" value="true" />
+      <created>1780059779439</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1780059779439</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -192,6 +206,7 @@
     <MESSAGE value="Added some polymorphism implementation" />
     <MESSAGE value="Added a new example, and ToString methods to some classes" />
     <MESSAGE value="Added simple GUI; Log in for now only" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added simple GUI; Log in for now only" />
+    <MESSAGE value="Now good GUI, we can log in or sig in as a librarian and as a student, the ID is generated randomly and uniquely, also there were a problem where if we left everything blank it would record on student or staff txt  as null student and stuff which I implemented in my classes just in case of something bad happening, and it worked as swiss clock, Because I made one firewall, being that user need to confirm password if the user left it as blank(null) the system would allow him to enter and, ergo creating faulty credentials ,but I didn't want any garbage in .txts, so I made a second firewall which made sure to fields are left blank and allowed to use major from dropdown boc rather than free text box" />
+    <option name="LAST_COMMIT_MESSAGE" value="Now good GUI, we can log in or sig in as a librarian and as a student, the ID is generated randomly and uniquely, also there were a problem where if we left everything blank it would record on student or staff txt  as null student and stuff which I implemented in my classes just in case of something bad happening, and it worked as swiss clock, Because I made one firewall, being that user need to confirm password if the user left it as blank(null) the system would allow him to enter and, ergo creating faulty credentials ,but I didn't want any garbage in .txts, so I made a second firewall which made sure to fields are left blank and allowed to use major from dropdown boc rather than free text box" />
   </component>
 </project>

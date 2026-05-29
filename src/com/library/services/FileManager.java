@@ -91,7 +91,8 @@ public class FileManager {
                         student.getName() + "," +
                         student.getUserId() + "," +
                         student.getEmail() + "," +
-                        student.getPassword());
+                        student.getPassword() + "," +
+                        student.isReceiveNotifications());
                 System.out.println("Success: " + student.getName() + " has been saved!");
             }
             System.out.println("Finished writing to " + STUDENT_FILE);
@@ -110,8 +111,15 @@ public class FileManager {
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                String[] data = scanner.nextLine().split(",");
-                loadedStudents.add(new Student(data[0], data[1], data[2], data[3], data[4]));
+                while (scanner.hasNextLine()) {
+                    String[] data = scanner.nextLine().split(",");
+                    Student loadedStudent = new Student(data[0], data[1], data[2], data[3], data[4]);
+                    // Safety check for older saves that only have 5 fields
+                    if (data.length > 5) {
+                        loadedStudent.setReceiveNotifications(Boolean.parseBoolean(data[5]));
+                    }
+                    loadedStudents.add(loadedStudent);
+                }
             }
             System.out.println("Success: Students loaded from " + STUDENT_FILE);
         } catch (Exception e) {

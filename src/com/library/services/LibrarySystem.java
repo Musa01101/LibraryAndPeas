@@ -4,6 +4,7 @@ import com.library.models.Book;
 import com.library.models.Librarian;
 import com.library.models.Student;
 import com.library.models.User;
+import com.library.models.StudyRoom;
 
 import java.util.ArrayList;
 
@@ -11,8 +12,7 @@ public class LibrarySystem {
     private ArrayList<Book> catalog;
     private ArrayList<Student> registeredStudents;
     private ArrayList<Librarian> registeredStaff;
-    // If the studyRooms array is empty then there's the room is vacant,elif it contains a String(studentId) then it's occupied
-    private String[] studyRooms;
+    private ArrayList<StudyRoom> rooms = new ArrayList<>();
 
     private FileManager fileManager;
 
@@ -20,8 +20,12 @@ public class LibrarySystem {
         this.catalog = new ArrayList<>();
         this.registeredStudents = new ArrayList<>();
         this.registeredStaff = new ArrayList<>();
-        this.studyRooms = new String[5];
         this.fileManager = new FileManager();
+        if (rooms.isEmpty()) {
+            for (int i = 1; i <= 5; i++) {
+                rooms.add(new StudyRoom(i));
+            }
+        }
         try {
             // 1. Load Books
             this.catalog = fileManager.loadBooks();
@@ -44,30 +48,21 @@ public class LibrarySystem {
             this.registeredStaff = new ArrayList<>();
         }
     }
-//getter methods for our "data base"
+
+    //getter methods for our "data base"
     public ArrayList<Book> getCatalog() {
         return this.catalog;
     }
-
     public ArrayList<Student> getRegisteredStudents() {
         return this.registeredStudents;
     }
-
     public ArrayList<Librarian> getRegisteredStaff() {
         return this.registeredStaff;
     }
-
-    public User findUserById(String userId) throws Exception {
-        // Scan students
-        for (Student s : registeredStudents) {
-            if (s.getUserId().equals(userId)) return s;
-        }
-        // Scan staff
-        for (Librarian l : registeredStaff) {
-            if (l.getUserId().equals(userId)) return l;
-        }
-        throw new Exception("Error: User ID '" + userId + "' not found.");
+    public ArrayList<StudyRoom> getRooms() {
+        return rooms;
     }
+
     //  System Shutdown (Save all data to files)
     public void saveSystemData() {
         try {
@@ -186,7 +181,6 @@ public class LibrarySystem {
         foundStudentRes.addReserveBook(foundBookRes);
         System.out.println("Reservation Successful: '" + foundBookRes.getTitle() + "' has been reserved for " + foundStudentRes.getName());
     }
-
     //  Manual Reservation Cancellation
     public void cancelReservation(String studentId, String bookId) throws Exception {
 
@@ -205,43 +199,37 @@ public class LibrarySystem {
         System.out.println("Reservation Cancelled: '" + foundBookCan.getTitle() + "' removed from " + foundStudentCan.getName() + "'s waitlist.");
     }
 
-    //  Study Room Booking
-    public void bookStudyRoom(String studentId, int roomNumber) throws Exception {
-        // Step 1: Validate the room number (1 through 5)
-        if (roomNumber < 1 || roomNumber > 5) {
-            throw new Exception("Error: Invalid room number. Please choose 1-5.");
+    // Books a study room if it is available
+    public void bookStudyRoom(String userId, int roomNumber) throws Exception {
+        for (StudyRoom room : rooms) {
+            if (room.getRoomNumber() == roomNumber) {
+                if (room.isBooked()) {
+                    throw new Exception("Room " + roomNumber + " is already occupied!");
+                }
+                room.setBooked(true);
+                System.out.println("User " + userId + " successfully booked Room " + roomNumber);
+                return; // Exit once successful
+            }
         }
-
-        // Arrays start at 0, so Room 1 is index 0
-        int roomIndex = roomNumber - 1;
-
-        // Step 2: Check if it is already booked
-        if (studyRooms[roomIndex] != null) {
-            throw new Exception("Error: Room " + roomNumber + " is currently occupied by student " + studyRooms[roomIndex]);
-        }
-
-        // Step 3: Book it!
-        studyRooms[roomIndex] = studentId;
-        System.out.println("Success: Room " + roomNumber + " booked for Student ID: " + studentId);
+        throw new Exception("Room " + roomNumber + " does not exist!");
     }
 
-    //  Study Room Cancellation
-    public void cancelRoomBooking(int roomNumber) throws Exception {
-        if (roomNumber < 1 || roomNumber > 5) {
-            throw new Exception("Error: Invalid room number. Please choose 1-5.");
+    // Vacates a study room
+    public void vacateStudyRoom(int roomNumber) throws Exception {
+        for (StudyRoom room : rooms) {
+            if (room.getRoomNumber() == roomNumber) {
+                room.setBooked(false);
+                System.out.println("Room " + roomNumber + " is now open.");
+                return;
+            }
         }
-        int roomIndex = roomNumber - 1;
-        // If the room is already empty, throw an error
-        if (studyRooms[roomIndex] == null) {
-            throw new Exception("Error: Room " + roomNumber + " is already empty.");
-        }
-        // To cancel it just set the student's ID to null
-        studyRooms[roomIndex] = null;
-        System.out.println("Success: Room " + roomNumber + " is now empty and available.");
+        throw new Exception("Room " + roomNumber + " does not exist!");
     }
 
 
-    //  My Helper Methods for studentId and bookId
+
+    //  My Helper Methods for studentId and bookId and UserId, just in case if
+    //  I didn't want to elaborate, whether a student or staff is in front?
     private Student findStudentById(String studentId) throws Exception {
         for (Student student : registeredStudents) {
             if (student.getUserId().equals(studentId)) {
@@ -251,7 +239,17 @@ public class LibrarySystem {
         // If the loop finishes without returning, the student doesn't exist
         throw new Exception("Error: Student ID '" + studentId + "' not found.");
     }
-
+    public User findUserById(String userId) throws Exception {
+        // Scan students
+        for (Student s : registeredStudents) {
+            if (s.getUserId().equals(userId)) return s;
+        }
+        // Scan staff
+        for (Librarian l : registeredStaff) {
+            if (l.getUserId().equals(userId)) return l;
+        }
+        throw new Exception("Error: User ID '" + userId + "' not found.");
+    }
     private Book findBookById(String bookId) throws Exception {
         for (Book book : catalog) {
             if (book.getBookId().equals(bookId)) {

@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Popup;
 
 public class LibraryGUI extends Application {
 
@@ -133,12 +134,18 @@ public class LibraryGUI extends Application {
         Label messageLabel = new Label();
 
         registerBtn.setOnAction(e -> {
-            // 1. Block empty submissions right away
+            // 0. Block empty submissions right away
             if (nameInput.getText().trim().isEmpty() ||
                     emailInput.getText().trim().isEmpty() ||
                     passInput.getText().isEmpty()) {
-
                 messageLabel.setText("Please fill out all fields!");
+                messageLabel.setTextFill(Color.RED);
+                return;
+            }
+
+            // 1. Block passwords that are too short
+            if (passInput.getText().length() < 6) {
+                messageLabel.setText("Password must be at least 6 characters!");
                 messageLabel.setTextFill(Color.RED);
                 return;
             }
@@ -232,11 +239,107 @@ public class LibraryGUI extends Application {
 
     // ---   THE MAIN TABS   ---
 
+    // --- THE WIRED-UP STUDENT PORTAL ---
     private Tab createStudentTab() {
         Tab tab = new Tab("Student Portal");
         VBox layout = new VBox(15);
         layout.setPadding(new Insets(20));
-        layout.getChildren().add(new Label("Student features will go here."));
+
+        // Teammate's Pending Search UI
+        HBox searchBar = new HBox(10);
+        TextField searchInput = new TextField(); searchInput.setPromptText("Search Title/Author");
+        ComboBox<String> filterBox = new ComboBox<>();
+        filterBox.getItems().addAll("All", "Fiction", "Education", "Computer Science");
+        filterBox.setValue("All");
+        Button searchBtn = new Button("Search");
+        searchBar.getChildren().addAll(searchInput, filterBox, searchBtn);
+
+        searchBtn.setOnAction(e -> {
+            showNotification("Waiting on Search Engine from teammates!", (Stage) tab.getTabPane().getScene().getWindow());
+        });
+
+        // Action UI
+        TextField bookIdInput = new TextField();
+        bookIdInput.setPromptText("Enter Book ID (e.g. B01)");
+
+        Button borrowBtn = new Button("Borrow");
+        Button returnBtn = new Button("Return");
+        Button reserveBtn = new Button("Reserve");
+
+        HBox actionButtons = new HBox(10, borrowBtn, returnBtn, reserveBtn);
+
+        Label messageLabel = new Label();
+
+        // Borrow Logic
+        borrowBtn.setOnAction(e -> {
+            try {
+                system.borrowBook(currentUser.getUserId(), bookIdInput.getText());
+                system.saveSystemData();
+                messageLabel.setText("Successfully borrowed " + bookIdInput.getText());
+                messageLabel.setTextFill(Color.GREEN);
+            } catch (Exception ex) {
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
+            }
+        });
+
+        // Return Logic (This is where the magic waitlist transfer happens!)
+        returnBtn.setOnAction(e -> {
+            try {
+                system.returnBook(currentUser.getUserId(), bookIdInput.getText());
+                system.saveSystemData();
+                messageLabel.setText("Successfully returned " + bookIdInput.getText());
+                messageLabel.setTextFill(Color.GREEN);
+
+                // Trigger a notification just in case it auto-transferred
+                showNotification("System checked for waitlist transfers.", (Stage) tab.getTabPane().getScene().getWindow());
+            } catch (Exception ex) {
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
+            }
+        });
+
+        // Reserve Logic
+        reserveBtn.setOnAction(e -> {
+            try {
+                system.reserveBook(currentUser.getUserId(), bookIdInput.getText());
+                system.saveSystemData();
+                messageLabel.setText("Successfully reserved " + bookIdInput.getText());
+                messageLabel.setTextFill(Color.GREEN);
+            } catch (Exception ex) {
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
+            }
+        });
+    // Notification Settings Toggle
+        CheckBox notifToggle = new CheckBox("Enable Waitlist & System Notifications");
+        notifToggle.setSelected(currentUser.isReceiveNotifications()); // Set to current status
+
+        notifToggle.setOnAction(e -> {
+            boolean isEnabled = notifToggle.isSelected();
+
+            // 1. Temporarily trick the system into allowing our popup through
+            currentUser.setReceiveNotifications(true);
+
+            // 2. Show the correct message
+            if (isEnabled) {
+                showNotification("Notifications enabled!", (Stage) tab.getTabPane().getScene().getWindow());
+            } else {
+                showNotification("Notifications disabled!", (Stage) tab.getTabPane().getScene().getWindow());
+            }
+
+            // 3. Set the actual preference the user chose and save it to the text file
+            currentUser.setReceiveNotifications(isEnabled);
+            system.saveSystemData();
+        });
+        layout.getChildren().addAll(
+                new Label("Search Catalog"), searchBar,
+                new Separator(),
+                new Label("Book Actions (Enter ID)"), bookIdInput, actionButtons, messageLabel,
+                new Separator(),
+                notifToggle
+        );
+
         tab.setContent(layout);
         return tab;
     }
@@ -255,30 +358,83 @@ public class LibraryGUI extends Application {
         VBox layout = new VBox(15);
         layout.setPadding(new Insets(20));
 
-        // Dropdown to switch views
         ComboBox<String> viewSelector = new ComboBox<>();
-        viewSelector.getItems().addAll("Books Availability", "Study Rooms Availability");
-        viewSelector.setValue("Books Availability"); // Default starting view
+        viewSelector.getItems().addAll("Books", "Study Rooms");
+        viewSelector.setValue("Books");
 
-        // The list that will update based on the choice
         ListView<String> displayList = new ListView<>();
-        displayList.getItems().add("Available Books will appear here..."); // Placeholder
+        Button refreshBtn = new Button("Refresh Data");
 
-        // Toggle logic
-        viewSelector.setOnAction(e -> {
+        // The logic to pull live data from your system
+        Runnable loadData = () -> {
             displayList.getItems().clear();
-            if (viewSelector.getValue().equals("Books Availability")) {
-                // TODO: system.getAvailableBooks() goes here later
-                displayList.getItems().add("Available Books will appear here...");
+
+            if (viewSelector.getValue().equals("Books")) {
+                // Assuming your system has a getCatalog() method
+                for (com.library.models.Book b : system.getCatalog()) {
+                    if (b.getAvailableCopies() > 0) {
+                        displayList.getItems().add(
+                                "ID: " + b.getBookId() + " | " + b.getTitle() + " (" + b.getAvailableCopies() + " available)"
+                        );
+                    }
+                }
+                if (displayList.getItems().isEmpty()) {
+                    displayList.getItems().add("No books currently available.");
+                }
             } else {
-                // TODO: system.getRoomStatus() goes here later
-                displayList.getItems().addAll("Room 1: Open", "Room 2: Booked", "Room 3: Open");
+                // Assuming your system has a getRooms() method
+                for (com.library.models.StudyRoom r : system.getRooms()) {
+                    String status = r.isBooked() ? "Booked" : "Open";
+                    displayList.getItems().add(
+                            "Room " + r.getRoomNumber() + " - Status: " + status
+                    );
+                }
+            }
+        };
+
+        // Trigger data load when dropdown changes or refresh is clicked
+        viewSelector.setOnAction(e -> loadData.run());
+        refreshBtn.setOnAction(e -> loadData.run());
+
+        // Auto-refresh every time the user clicks this tab
+        tab.setOnSelectionChanged(e -> {
+            if (tab.isSelected()) {
+                loadData.run();
             }
         });
 
-        layout.getChildren().addAll(new Label("Select what to view:"), viewSelector, displayList);
+        // Load it once right at the start
+        loadData.run();
+
+        HBox controls = new HBox(10, new Label("Select what to view:"), viewSelector, refreshBtn);
+        controls.setAlignment(Pos.CENTER_LEFT);
+
+        layout.getChildren().addAll(controls, displayList);
         tab.setContent(layout);
+
         return tab;
+    }
+
+    // --- THE CUSTOM NOTIFICATION SYSTEM ---
+    private void showNotification(String message, Stage stage) {
+        // Only show if the user has notifications enabled
+        if (currentUser != null && !currentUser.isReceiveNotifications()) {
+            return;
+        }
+
+        Label toast = new Label(message);
+        toast.setStyle("-fx-background-color: #333; -fx-text-fill: white; -fx-padding: 10px; -fx-background-radius: 5px;");
+        Popup popup = new Popup();
+        popup.getContent().add(toast);
+        popup.setAutoHide(true);
+
+        // Position it at the top right of the window
+        popup.show(stage, stage.getX() + stage.getWidth() - 250, stage.getY() + 70);
+
+        // Hide it after 3 seconds
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+        delay.setOnFinished(e -> popup.hide());
+        delay.play();
     }
 
     public static void main(String[] args) {
