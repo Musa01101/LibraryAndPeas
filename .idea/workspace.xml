@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Okay, massive GUI changes I delted previous array for study rooms and added a barnd new class in my models' for convinience when creating a GUI. Speaking of GUI i added a real list showing avialable books and avialbel rooms, no actions with them yet">
-      <change afterPath="$PROJECT_DIR$/src/com/library/models/BookSearchEngine.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/library/models/IBookSearch.java" afterDir="false" />
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/LibraryGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/models/StudyRoom.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/StudyRoom.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
     </list>
@@ -206,7 +205,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780065511182</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab">
+      <option name="closed" value="true" />
+      <created>1780213591859</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1780213591859</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -220,6 +227,18 @@
     <MESSAGE value="Added simple GUI; Log in for now only" />
     <MESSAGE value="Now good GUI, we can log in or sig in as a librarian and as a student, the ID is generated randomly and uniquely, also there were a problem where if we left everything blank it would record on student or staff txt  as null student and stuff which I implemented in my classes just in case of something bad happening, and it worked as swiss clock, Because I made one firewall, being that user need to confirm password if the user left it as blank(null) the system would allow him to enter and, ergo creating faulty credentials ,but I didn't want any garbage in .txts, so I made a second firewall which made sure to fields are left blank and allowed to use major from dropdown boc rather than free text box" />
     <MESSAGE value="Okay, massive GUI changes I delted previous array for study rooms and added a barnd new class in my models' for convinience when creating a GUI. Speaking of GUI i added a real list showing avialable books and avialbel rooms, no actions with them yet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Okay, massive GUI changes I delted previous array for study rooms and added a barnd new class in my models' for convinience when creating a GUI. Speaking of GUI i added a real list showing avialable books and avialbel rooms, no actions with them yet" />
+    <MESSAGE value="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab" />
+    <option name="LAST_COMMIT_MESSAGE" value="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/library/services/LibrarySystem.java</url>
+          <line>81</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

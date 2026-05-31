@@ -203,31 +203,31 @@ public class LibrarySystem {
         System.out.println("Reservation Cancelled: '" + foundBookCan.getTitle() + "' removed from " + foundStudentCan.getName() + "'s waitlist.");
     }
 
-    // Books a study room if it is available
-    public void bookStudyRoom(String userId, int roomNumber) throws Exception {
-        for (StudyRoom room : rooms) {
-            if (room.getRoomNumber() == roomNumber) {
-                if (room.isBooked()) {
-                    throw new Exception("Room " + roomNumber + " is already occupied!");
-                }
-                room.setBooked(true);
-                System.out.println("User " + userId + " successfully booked Room " + roomNumber);
-                return; // Exit once successful
+    public void bookStudyRoom(String userId, int roomNum) throws Exception {
+        // 1. Check if the student already has a room
+        for (com.library.models.StudyRoom room : rooms) {
+            if (room.isBooked() && userId.equals(room.getOccupantId())) {
+                throw new Exception("You already have a room booked! Leave it first.");
             }
         }
-        throw new Exception("Room " + roomNumber + " does not exist!");
+
+        // 2. Book the specific room
+        com.library.models.StudyRoom target = rooms.get(roomNum - 1);
+        if (target.isBooked()) throw new Exception("Room is already occupied!");
+
+        target.setBooked(true);
+        target.setOccupantId(userId);
     }
 
-    // Vacates a study room
-    public void vacateStudyRoom(int roomNumber) throws Exception {
-        for (StudyRoom room : rooms) {
-            if (room.getRoomNumber() == roomNumber) {
+    public void leaveStudyRoom(String userId) throws Exception {
+        for (com.library.models.StudyRoom room : rooms) {
+            if (room.isBooked() && userId.equals(room.getOccupantId())) {
                 room.setBooked(false);
-                System.out.println("Room " + roomNumber + " is now open.");
+                room.setOccupantId(null);
                 return;
             }
         }
-        throw new Exception("Room " + roomNumber + " does not exist!");
+        throw new Exception("You don't have a room booked!");
     }
 
 

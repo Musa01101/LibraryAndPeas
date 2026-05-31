@@ -129,7 +129,6 @@ public class FileManager {
     }
 
     //______Transactions (The Ledger)______
-//______Transactions (The Ledger)______
     public void saveTransactions(ArrayList<Student> students, ArrayList<com.library.models.StudyRoom> rooms) throws Exception {
         try (PrintWriter out = new PrintWriter(TRANSACTIONS_FILE)) {
             for (Student student : students) {
@@ -140,10 +139,10 @@ public class FileManager {
                     out.println(student.getUserId() + "," + book.getBookId() + ",RESERVED");
                 }
             }
-            // Tag booked rooms at the bottom!
+            // Tag booked rooms at the bottom, now including the occupantId!
             for (com.library.models.StudyRoom room : rooms) {
-                if (room.isBooked()) {
-                    out.println("ROOM," + room.getRoomNumber() + ",BOOKED");
+                if (room.isBooked() && room.getOccupantId() != null) {
+                    out.println("ROOM," + room.getRoomNumber() + ",BOOKED," + room.getOccupantId());
                 }
             }
             System.out.println("Success: Transactions saved to " + TRANSACTIONS_FILE);
@@ -163,8 +162,14 @@ public class FileManager {
                 // Catch the room saves first!
                 if (data[0].equals("ROOM")) {
                     int roomNum = Integer.parseInt(data[1]);
+                    // Safely grab the ID we just added
+                    String occupantId = data.length > 3 ? data[3] : null;
+
                     for (com.library.models.StudyRoom r : rooms) {
-                        if (r.getRoomNumber() == roomNum) r.setBooked(true);
+                        if (r.getRoomNumber() == roomNum) {
+                            r.setBooked(true);
+                            r.setOccupantId(occupantId); // Restore ownership!
+                        }
                     }
                     continue; // Skip the rest of the loop and go to the next line
                 }

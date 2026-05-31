@@ -3,6 +3,10 @@ package com.library.models;
 public class StudyRoom {
     private int roomNumber;
     private boolean isBooked;
+    private String occupantId;
+
+    public String getOccupantId() { return occupantId; }
+    public void setOccupantId(String occupantId) { this.occupantId = occupantId; }
 
     public StudyRoom(int roomNumber) {
         this.roomNumber = roomNumber;
