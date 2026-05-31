@@ -1,10 +1,6 @@
 package com.library.services;
 
-import com.library.models.Book;
-import com.library.models.Librarian;
-import com.library.models.Student;
-import com.library.models.User;
-import com.library.models.StudyRoom;
+import com.library.models.*;
 
 import java.util.ArrayList;
 
@@ -35,7 +31,7 @@ public class LibrarySystem {
             this.registeredStaff = fileManager.loadLibrarians(this.catalog);
 
             // 3. Load Transactions to link the books to the students!
-            fileManager.loadTransactions(this.registeredStudents, this.catalog);
+            fileManager.loadTransactions(this.registeredStudents, this.catalog, this.rooms);
 
             System.out.println("System Boot: All library data loaded successfully.");
         } catch (Exception e) {
@@ -53,12 +49,15 @@ public class LibrarySystem {
     public ArrayList<Book> getCatalog() {
         return this.catalog;
     }
+
     public ArrayList<Student> getRegisteredStudents() {
         return this.registeredStudents;
     }
+
     public ArrayList<Librarian> getRegisteredStaff() {
         return this.registeredStaff;
     }
+
     public ArrayList<StudyRoom> getRooms() {
         return rooms;
     }
@@ -70,7 +69,7 @@ public class LibrarySystem {
             fileManager.saveBooks(this.catalog);
             fileManager.saveStudents(this.registeredStudents);
             fileManager.saveLibrarians(this.registeredStaff);
-            fileManager.saveTransactions(this.registeredStudents);
+            fileManager.saveTransactions(this.registeredStudents, this.rooms);
             System.out.println("Shutdown Complete: All data safely saved.");
         } catch (Exception e) {
             System.out.println("ERROR: Failed to save system data!");
@@ -83,7 +82,7 @@ public class LibrarySystem {
         if (book != null && !catalog.contains(book)) {
             catalog.add(book);
 
-            if(librarian != null) {
+            if (librarian != null) {
                 librarian.addManagedBook(book);
             }
         }
@@ -177,10 +176,15 @@ public class LibrarySystem {
         if (foundStudentRes.getReservedBooks().contains(foundBookRes)) {
             throw new Exception("Error: The student has already placed a reservation on this book.");
         }
-// Step 6: Execute the Reservation safely
+        //Step 6: Check if the student have already borrowed this book?
+        if (foundStudentRes.getBorrowedBooks().contains(foundBookRes)) {
+            throw new Exception("Error: You cannot reserve a book you already have borrowed!");
+        }
+        // Step 7: Execute the Reservation safely
         foundStudentRes.addReserveBook(foundBookRes);
         System.out.println("Reservation Successful: '" + foundBookRes.getTitle() + "' has been reserved for " + foundStudentRes.getName());
     }
+
     //  Manual Reservation Cancellation
     public void cancelReservation(String studentId, String bookId) throws Exception {
 
@@ -227,7 +231,6 @@ public class LibrarySystem {
     }
 
 
-
     //  My Helper Methods for studentId and bookId and UserId, just in case if
     //  I didn't want to elaborate, whether a student or staff is in front?
     private Student findStudentById(String studentId) throws Exception {
@@ -239,6 +242,7 @@ public class LibrarySystem {
         // If the loop finishes without returning, the student doesn't exist
         throw new Exception("Error: Student ID '" + studentId + "' not found.");
     }
+
     public User findUserById(String userId) throws Exception {
         // Scan students
         for (Student s : registeredStudents) {
@@ -250,6 +254,7 @@ public class LibrarySystem {
         }
         throw new Exception("Error: User ID '" + userId + "' not found.");
     }
+
     private Book findBookById(String bookId) throws Exception {
         for (Book book : catalog) {
             if (book.getBookId().equals(bookId)) {

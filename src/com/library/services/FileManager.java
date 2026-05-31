@@ -129,7 +129,8 @@ public class FileManager {
     }
 
     //______Transactions (The Ledger)______
-    public void saveTransactions(ArrayList<Student> students) throws Exception {
+//______Transactions (The Ledger)______
+    public void saveTransactions(ArrayList<Student> students, ArrayList<com.library.models.StudyRoom> rooms) throws Exception {
         try (PrintWriter out = new PrintWriter(TRANSACTIONS_FILE)) {
             for (Student student : students) {
                 for (Book book : student.getBorrowedBooks()) {
@@ -139,19 +140,35 @@ public class FileManager {
                     out.println(student.getUserId() + "," + book.getBookId() + ",RESERVED");
                 }
             }
+            // Tag booked rooms at the bottom!
+            for (com.library.models.StudyRoom room : rooms) {
+                if (room.isBooked()) {
+                    out.println("ROOM," + room.getRoomNumber() + ",BOOKED");
+                }
+            }
             System.out.println("Success: Transactions saved to " + TRANSACTIONS_FILE);
         } catch (Exception e) {
             throw new Exception("Error saving transactions: " + e.getMessage());
         }
     }
 
-    public void loadTransactions(ArrayList<Student> students, ArrayList<Book> catalog) throws Exception {
+    public void loadTransactions(ArrayList<Student> students, ArrayList<Book> catalog, ArrayList<com.library.models.StudyRoom> rooms) throws Exception {
         File file = new File(TRANSACTIONS_FILE);
         if (!file.exists()) return;
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String[] data = scanner.nextLine().split(",");
+
+                // Catch the room saves first!
+                if (data[0].equals("ROOM")) {
+                    int roomNum = Integer.parseInt(data[1]);
+                    for (com.library.models.StudyRoom r : rooms) {
+                        if (r.getRoomNumber() == roomNum) r.setBooked(true);
+                    }
+                    continue; // Skip the rest of the loop and go to the next line
+                }
+
                 String studentId = data[0];
                 String bookId = data[1];
                 String status = data[2];
@@ -182,7 +199,6 @@ public class FileManager {
             throw new Exception("Error loading transactions: " + e.getMessage());
         }
     }
-
 
     //______Librarians______
     //Saving the Librarians  method

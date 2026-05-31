@@ -1,20 +1,24 @@
-import com.library.models.User;
+import com.library.models.*;
 import com.library.services.LibrarySystem;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
 
 public class LibraryGUI extends Application {
 
     // Boot up the core backend (automatically loads my text files)
     private LibrarySystem system = new LibrarySystem();
     private User currentUser = null; // Keeps track of who is logged in
+    private BookSearchEngine searchEngine = new BookSearchEngine();
 
     @Override
     public void start(Stage primaryStage) {
@@ -22,6 +26,7 @@ public class LibraryGUI extends Application {
         showLoginScreen(primaryStage);
         primaryStage.show();
     }
+
     //Login Screen
     private void showLoginScreen(Stage stage) {
         VBox layout = new VBox(15);
@@ -76,7 +81,7 @@ public class LibraryGUI extends Application {
             }
         });
 
-        // We will build the Sign Up screen next!
+        // We will build the Sign-Up screen next!
         signupBtn.setOnAction(e -> {
             showSignUpScreen(stage);
         });
@@ -84,6 +89,7 @@ public class LibraryGUI extends Application {
         layout.getChildren().addAll(title, emailInput, passInput, loginBtn, signupBtn, messageLabel);
         stage.setScene(new Scene(layout, 400, 350));
     }
+
     //Sign Up screen
     private void showSignUpScreen(Stage stage) {
         VBox layout = new VBox(15);
@@ -97,11 +103,19 @@ public class LibraryGUI extends Application {
         roleBox.getItems().addAll("Student", "Librarian");
         roleBox.setValue("Student"); // Default
 
-        TextField nameInput = new TextField(); nameInput.setPromptText("Full Name"); nameInput.setMaxWidth(250);
-        TextField emailInput = new TextField(); emailInput.setPromptText("Email"); emailInput.setMaxWidth(250);
+        TextField nameInput = new TextField();
+        nameInput.setPromptText("Full Name");
+        nameInput.setMaxWidth(250);
+        TextField emailInput = new TextField();
+        emailInput.setPromptText("Email");
+        emailInput.setMaxWidth(250);
 
-        PasswordField passInput = new PasswordField(); passInput.setPromptText("Password"); passInput.setMaxWidth(250);
-        PasswordField confirmPassInput = new PasswordField(); confirmPassInput.setPromptText("Confirm Password"); confirmPassInput.setMaxWidth(250);
+        PasswordField passInput = new PasswordField();
+        passInput.setPromptText("Password");
+        passInput.setMaxWidth(250);
+        PasswordField confirmPassInput = new PasswordField();
+        confirmPassInput.setPromptText("Confirm Password");
+        confirmPassInput.setMaxWidth(250);
 
         // Major Dropdown for Students
         ComboBox<String> majorCombo = new ComboBox<>();
@@ -160,7 +174,7 @@ public class LibraryGUI extends Application {
             try {
                 // Auto-generate a random 4-digit ID based on role
                 String prefix = roleBox.getValue().equals("Student") ? "S" : "L";
-                String generatedId = prefix + (int)(Math.random() * 9000 + 1000);
+                String generatedId = prefix + (int) (Math.random() * 9000 + 1000);
 
                 if (roleBox.getValue().equals("Student")) {
                     String selectedMajor = majorCombo.getValue();
@@ -170,7 +184,7 @@ public class LibraryGUI extends Application {
                         return;
                     }
 
-                    com.library.models.Student newStudent = new com.library.models.Student(
+                    Student newStudent = new Student(
                             selectedMajor, nameInput.getText(), generatedId, emailInput.getText(), passInput.getText()
                     );
                     system.registerStudent(newStudent);
@@ -181,7 +195,7 @@ public class LibraryGUI extends Application {
                         return;
                     }
 
-                    com.library.models.Librarian newLibrarian = new com.library.models.Librarian(
+                    Librarian newLibrarian = new Librarian(
                             nameInput.getText(), generatedId, emailInput.getText(), passInput.getText(), staffNumInput.getText()
                     );
                     system.registerStaff(newLibrarian);
@@ -214,7 +228,7 @@ public class LibraryGUI extends Application {
         signOutBtn.setStyle("-fx-background-color: #ff4c4c; -fx-text-fill: white;");
         signOutBtn.setOnAction(e -> {
             currentUser = null; // Clear the logged-in user
-            showLoginScreen(stage); // Kick back to login screen
+            showLoginScreen(stage); // Kick back to log in screen
         });
 
         topBar.getChildren().add(signOutBtn);
@@ -223,9 +237,9 @@ public class LibraryGUI extends Application {
         TabPane root = new TabPane();
         root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        if (currentUser instanceof com.library.models.Student) {
+        if (currentUser instanceof Student) {
             root.getTabs().addAll(createStudentTab(), createAvailabilityTab());
-        } else if (currentUser instanceof com.library.models.Librarian) {
+        } else if (currentUser instanceof Librarian) {
             root.getTabs().addAll(createLibrarianTab(), createAvailabilityTab());
         }
 
@@ -238,8 +252,7 @@ public class LibraryGUI extends Application {
     }
 
     // ---   THE MAIN TABS   ---
-
-    // --- THE WIRED-UP STUDENT PORTAL ---
+    // --- THE  STUDENT PORTAL ---
     private Tab createStudentTab() {
         Tab tab = new Tab("Student Portal");
         VBox layout = new VBox(15);
@@ -247,71 +260,133 @@ public class LibraryGUI extends Application {
 
         // Teammate's Pending Search UI
         HBox searchBar = new HBox(10);
-        TextField searchInput = new TextField(); searchInput.setPromptText("Search Title/Author");
+        TextField searchInput = new TextField();
+        searchInput.setPromptText("Search Title/Author");
         ComboBox<String> filterBox = new ComboBox<>();
         filterBox.getItems().addAll("All", "Fiction", "Education", "Computer Science");
         filterBox.setValue("All");
         Button searchBtn = new Button("Search");
         searchBar.getChildren().addAll(searchInput, filterBox, searchBtn);
+        ListView<String> searchResultsList = new ListView<>();
+        searchResultsList.setPrefHeight(150); // Keeps it from taking up the whole screen
 
         searchBtn.setOnAction(e -> {
-            showNotification("Waiting on Search Engine from teammates!", (Stage) tab.getTabPane().getScene().getWindow());
-        });
+            searchResultsList.getItems().clear(); // Clear the old search results
 
-        // Action UI
-        TextField bookIdInput = new TextField();
-        bookIdInput.setPromptText("Enter Book ID (e.g. B01)");
+            String keyword = searchInput.getText().trim();
+            String category = filterBox.getValue();
 
-        Button borrowBtn = new Button("Borrow");
-        Button returnBtn = new Button("Return");
-        Button reserveBtn = new Button("Reserve");
+            // Start with the entire library catalog
+            java.util.List<com.library.models.Book> foundBooks = system.getCatalog();
 
-        HBox actionButtons = new HBox(10, borrowBtn, returnBtn, reserveBtn);
+            // 1. Filter by Category (if they didn't select "All")
+            if (category != null && !category.equals("All")) {
+                foundBooks = searchEngine.filterByCategory(foundBooks, category);
+            }
 
-        Label messageLabel = new Label();
+            // 2. Search by Keyword (Check both Title AND Author)
+            if (!keyword.isEmpty()) {
+                java.util.List<com.library.models.Book> titleMatches = searchEngine.searchByTitle(foundBooks, keyword);
+                java.util.List<com.library.models.Book> authorMatches = searchEngine.searchByAuthor(foundBooks, keyword);
 
-        // Borrow Logic
-        borrowBtn.setOnAction(e -> {
-            try {
-                system.borrowBook(currentUser.getUserId(), bookIdInput.getText());
-                system.saveSystemData();
-                messageLabel.setText("Successfully borrowed " + bookIdInput.getText());
-                messageLabel.setTextFill(Color.GREEN);
-            } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage());
-                messageLabel.setTextFill(Color.RED);
+                // Merge the two lists so we don't miss anything (avoiding duplicates)
+                foundBooks = new java.util.ArrayList<>(titleMatches);
+                for (com.library.models.Book b : authorMatches) {
+                    if (!foundBooks.contains(b)) {
+                        foundBooks.add(b);
+                    }
+                }
+            }
+
+            // 3. Flex Suhail's Sorting Method: Put available books at the top!
+            foundBooks = searchEngine.prioritizeAvailableBooks(foundBooks);
+
+            // 4. Display the results in the ListView
+            if (foundBooks.isEmpty()) {
+                searchResultsList.getItems().add("No books found matching your search.");
+            } else {
+                for (com.library.models.Book b : foundBooks) {
+                    String status = b.getAvailableCopies() > 0 ? "(Available: " + b.getAvailableCopies() + ")" : "(Waitlist Only)";
+                    searchResultsList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle() + " by " + b.getAuthor() + " " + status);
+                }
             }
         });
 
-        // Return Logic (This is where the magic waitlist transfer happens!)
-        returnBtn.setOnAction(e -> {
-            try {
-                system.returnBook(currentUser.getUserId(), bookIdInput.getText());
-                system.saveSystemData();
-                messageLabel.setText("Successfully returned " + bookIdInput.getText());
-                messageLabel.setTextFill(Color.GREEN);
+        // Action UI
+        // --- My Borrowed Books UI ---
+        Label myBooksLabel = new Label("My Borrowed Books");
+        ListView<String> borrowedList = new ListView<>();
+        borrowedList.setPrefHeight(150);
+        Label messageLabel = new Label();
 
-                // Trigger a notification just in case it auto-transferred
+        Runnable loadMyBooks = () -> {
+            borrowedList.getItems().clear();
+            com.library.models.Student student = (com.library.models.Student) currentUser;
+            for (com.library.models.Book b : student.getBorrowedBooks()) {
+                borrowedList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle());
+            }
+            if (borrowedList.getItems().isEmpty()) {
+                borrowedList.getItems().add("You have no borrowed books.");
+            }
+        };
+
+        // Auto-refresh the list whenever they click the Student Tab
+        tab.setOnSelectionChanged(e -> {
+            if (tab.isSelected()) loadMyBooks.run();
+        });
+        loadMyBooks.run();
+
+        Button returnBtn = new Button("Return Selected Book");
+        HBox returnAction = new HBox(10, returnBtn);
+        returnAction.setAlignment(Pos.CENTER_LEFT);
+
+        returnBtn.setOnAction(e -> {
+            String selected = borrowedList.getSelectionModel().getSelectedItem();
+            if (selected == null || !selected.startsWith("ID: ")) {
+                messageLabel.setText("Please select a valid book to return!");
+                messageLabel.setTextFill(Color.RED);
+                return;
+            }
+            try {
+                String bookId = selected.substring(4, selected.indexOf(" |"));
+                system.returnBook(currentUser.getUserId(), bookId);
+                system.saveSystemData();
+                loadMyBooks.run(); // Instantly refresh their personal list
+                messageLabel.setText("Successfully returned " + bookId);
+                messageLabel.setTextFill(Color.GREEN);
                 showNotification("System checked for waitlist transfers.", (Stage) tab.getTabPane().getScene().getWindow());
             } catch (Exception ex) {
                 messageLabel.setText(ex.getMessage());
                 messageLabel.setTextFill(Color.RED);
             }
         });
+        // --- Study Room Actions ---
+        ComboBox<Integer> roomCombo = new ComboBox<>();
+        roomCombo.getItems().addAll(1, 2, 3, 4, 5);
+        roomCombo.setPromptText("Room #");
 
-        // Reserve Logic
-        reserveBtn.setOnAction(e -> {
+        Button bookRoomBtn = new Button("Book Room");
+        HBox roomActions = new HBox(10, new Label("Book Study Room:"), roomCombo, bookRoomBtn);
+        roomActions.setAlignment(Pos.CENTER_LEFT);
+
+        bookRoomBtn.setOnAction(e -> {
+            if (roomCombo.getValue() == null) {
+                messageLabel.setText("Please select a room number!");
+                messageLabel.setTextFill(Color.RED);
+                return;
+            }
             try {
-                system.reserveBook(currentUser.getUserId(), bookIdInput.getText());
+                system.bookStudyRoom(currentUser.getUserId(), roomCombo.getValue());
                 system.saveSystemData();
-                messageLabel.setText("Successfully reserved " + bookIdInput.getText());
+                messageLabel.setText("Successfully booked Room " + roomCombo.getValue());
                 messageLabel.setTextFill(Color.GREEN);
             } catch (Exception ex) {
                 messageLabel.setText(ex.getMessage());
                 messageLabel.setTextFill(Color.RED);
             }
         });
-    // Notification Settings Toggle
+
+        // Notification Settings Toggle
         CheckBox notifToggle = new CheckBox("Enable Waitlist & System Notifications");
         notifToggle.setSelected(currentUser.isReceiveNotifications()); // Set to current status
 
@@ -333,9 +408,12 @@ public class LibraryGUI extends Application {
             system.saveSystemData();
         });
         layout.getChildren().addAll(
-                new Label("Search Catalog"), searchBar,
+                new Label("Search Catalog"), searchBar,searchResultsList,
                 new Separator(),
-                new Label("Book Actions (Enter ID)"), bookIdInput, actionButtons, messageLabel,
+                myBooksLabel, borrowedList, returnAction,
+                new Separator(),
+                roomActions,
+                messageLabel,
                 new Separator(),
                 notifToggle
         );
@@ -371,10 +449,14 @@ public class LibraryGUI extends Application {
 
             if (viewSelector.getValue().equals("Books")) {
                 // Assuming your system has a getCatalog() method
-                for (com.library.models.Book b : system.getCatalog()) {
+                for ( Book b : system.getCatalog()) {
                     if (b.getAvailableCopies() > 0) {
                         displayList.getItems().add(
                                 "ID: " + b.getBookId() + " | " + b.getTitle() + " (" + b.getAvailableCopies() + " available)"
+                        );
+                    } else {
+                        displayList.getItems().add(
+                                "ID: " + b.getBookId() + " | " + b.getTitle() + " (OUT OF STOCK - Reserve Only)"
                         );
                     }
                 }
@@ -383,7 +465,7 @@ public class LibraryGUI extends Application {
                 }
             } else {
                 // Assuming your system has a getRooms() method
-                for (com.library.models.StudyRoom r : system.getRooms()) {
+                for (StudyRoom r : system.getRooms()) {
                     String status = r.isBooked() ? "Booked" : "Open";
                     displayList.getItems().add(
                             "Room " + r.getRoomNumber() + " - Status: " + status
@@ -403,13 +485,66 @@ public class LibraryGUI extends Application {
             }
         });
 
+        // --- Clickable Actions for Students ---
+        Label messageLabel = new Label();
+        HBox actionBox = new HBox(10);
+        actionBox.setAlignment(Pos.CENTER_LEFT);
+
+        if (currentUser instanceof Student) {
+            Button borrowBtn = new Button("Borrow ");
+            Button reserveBtn = new Button("Reserve ");
+
+            borrowBtn.setOnAction(e -> {
+                String selected = displayList.getSelectionModel().getSelectedItem();
+                if (selected == null || !selected.startsWith("ID: ")) {
+                    messageLabel.setText("Please select a book from the list!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+                try {
+                    // Extract the ID from our string format "ID: B01 | Title..."
+                    String bookId = selected.substring(4, selected.indexOf(" |"));
+                    system.borrowBook(currentUser.getUserId(), bookId);
+                    system.saveSystemData();
+                    loadData.run(); // Instantly refresh the list!
+                    messageLabel.setText("Successfully borrowed " + bookId);
+                    messageLabel.setTextFill(Color.GREEN);
+                } catch (Exception ex) {
+                    messageLabel.setText(ex.getMessage());
+                    messageLabel.setTextFill(Color.RED);
+                }
+            });
+
+            reserveBtn.setOnAction(e -> {
+                String selected = displayList.getSelectionModel().getSelectedItem();
+                if (selected == null || !selected.startsWith("ID: ")) {
+                    messageLabel.setText("Please select a book from the list!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+                try {
+                    String bookId = selected.substring(4, selected.indexOf(" |"));
+                    system.reserveBook(currentUser.getUserId(), bookId);
+                    system.saveSystemData();
+                    loadData.run();
+                    messageLabel.setText("Successfully reserved " + bookId);
+                    messageLabel.setTextFill(Color.GREEN);
+                } catch (Exception ex) {
+                    messageLabel.setText(ex.getMessage());
+                    messageLabel.setTextFill(Color.RED);
+                }
+            });
+
+            actionBox.getChildren().addAll(borrowBtn, reserveBtn);
+        }
+
         // Load it once right at the start
         loadData.run();
 
         HBox controls = new HBox(10, new Label("Select what to view:"), viewSelector, refreshBtn);
         controls.setAlignment(Pos.CENTER_LEFT);
 
-        layout.getChildren().addAll(controls, displayList);
+        layout.getChildren().addAll(controls, displayList, actionBox, messageLabel);
         tab.setContent(layout);
 
         return tab;
