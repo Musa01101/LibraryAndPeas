@@ -13,8 +13,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
-import java.util.List;
-
 //Add librarian +1 to resrve for student(Done)
 //Add search by ID as well or make posible borrowing from the student portal? or remove search from student portal?(Done)
 //Add remove book function for librarian(check rubric)
@@ -268,9 +266,8 @@ public class LibraryGUI extends Application {
         root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         if (currentUser instanceof Student) {
-            root.getTabs().addAll(createStudentTab(), createAvailabilityTab(),createStudyRoomsTab());
-        }
-        else if (currentUser instanceof Librarian) {
+            root.getTabs().addAll(createStudentTab(), createAvailabilityTab(), createStudyRoomsTab());
+        } else if (currentUser instanceof Librarian) {
             root.getTabs().addAll(createLibrarianTab(), createAvailabilityTab());
         }
 
@@ -290,6 +287,7 @@ public class LibraryGUI extends Application {
         stage.setScene(new Scene(mainLayout, 800, 600));
         stage.centerOnScreen();
     }
+
     // --- THE  STUDENT PORTAL ---
     private Tab createStudentTab() {
         Tab tab = new Tab("Student Portal");
@@ -418,6 +416,7 @@ public class LibraryGUI extends Application {
 
         return tab;
     }
+
     // --- THE  LIBRARIAN PORTAL ---
     private Tab createLibrarianTab() {
         Tab tab = new Tab("Librarian Dashboard");
@@ -434,31 +433,40 @@ public class LibraryGUI extends Application {
         addForm.setVgap(10);
 
 
-        TextField titleInput = new TextField(); titleInput.setPromptText("Title");
-        TextField authorInput = new TextField(); authorInput.setPromptText("Author");
+        TextField titleInput = new TextField();
+        titleInput.setPromptText("Title");
+        TextField authorInput = new TextField();
+        authorInput.setPromptText("Author");
 
         ComboBox<String> categoryInput = new ComboBox<>();
         categoryInput.getItems().addAll("Fiction", "Education", "Computer Science", "Science", "History");
         categoryInput.setPromptText("Select Category");
 
-        TextField copiesInput = new TextField(); copiesInput.setPromptText("Copies (e.g. 5)");
-        TextField yearInput = new TextField(); yearInput.setPromptText("Year (e.g. 2024)");
+        TextField copiesInput = new TextField();
+        copiesInput.setPromptText("Copies (e.g. 5)");
+        TextField yearInput = new TextField();
+        yearInput.setPromptText("Year (e.g. 2024)");
 
         // Left Column (Removed Book ID)
-        addForm.add(new Label("Title:"), 0, 0);    addForm.add(titleInput, 1, 0);
-        addForm.add(new Label("Author:"), 0, 1);   addForm.add(authorInput, 1, 1);
-        addForm.add(new Label("Category:"), 0, 2); addForm.add(categoryInput, 1, 2);
+        addForm.add(new Label("Title:"), 0, 0);
+        addForm.add(titleInput, 1, 0);
+        addForm.add(new Label("Author:"), 0, 1);
+        addForm.add(authorInput, 1, 1);
+        addForm.add(new Label("Category:"), 0, 2);
+        addForm.add(categoryInput, 1, 2);
 
         // Right Column (Removed ISBN)
-        addForm.add(new Label("Copies:"), 2, 0);   addForm.add(copiesInput, 3, 0);
-        addForm.add(new Label("Year:"), 2, 1);     addForm.add(yearInput, 3, 1);
+        addForm.add(new Label("Copies:"), 2, 0);
+        addForm.add(copiesInput, 3, 0);
+        addForm.add(new Label("Year:"), 2, 1);
+        addForm.add(yearInput, 3, 1);
 
         Button addBtn = new Button("Add Book");
         Label messageLabel = new Label();
 
         addBtn.setOnAction(e -> {
             // Quick check to make sure they didn't leave critical fields blank
-            if ( titleInput.getText().isEmpty() || categoryInput.getValue() == null) {
+            if (titleInput.getText().isEmpty() || categoryInput.getValue() == null) {
                 messageLabel.setText("Title, and Category are required!");
                 messageLabel.setTextFill(Color.RED);
                 return;
@@ -497,16 +505,17 @@ public class LibraryGUI extends Application {
                         if (currentNum > maxId) {
                             maxId = currentNum;
                         }
-                    } catch (Exception ignored) {} // Ignores any weirdly formatted old IDs from previous versions
+                    } catch (Exception ignored) {
+                    } // Ignores any weirdly formatted old IDs from previous versions
                 }
                 // Formats the next number to always have 2 digits (like: B08, B09, B10)
                 String autoBookId = String.format("B%02d", maxId + 1);
 
                 // --- AUTO-GENERATE UNIQUE ISBN ---
-                String autoIsbn = "ISBN-" + (long)(Math.random() * 9000000000L + 1000000000L);
+                String autoIsbn = "ISBN-" + (long) (Math.random() * 9000000000L + 1000000000L);
 
                 // Create the book with mine auto-generated data
-                Book newBook = new  Book(
+                Book newBook = new Book(
                         autoBookId, titleInput.getText(), authorInput.getText(),
                         categoryInput.getValue(), autoIsbn, copies, year
                 );
@@ -518,8 +527,10 @@ public class LibraryGUI extends Application {
                 messageLabel.setTextFill(Color.GREEN);
 
                 // Clear the form
-                titleInput.clear(); authorInput.clear();
-                copiesInput.clear(); yearInput.clear();
+                titleInput.clear();
+                authorInput.clear();
+                copiesInput.clear();
+                yearInput.clear();
                 categoryInput.setValue(null);
             } catch (NumberFormatException ex) {
                 messageLabel.setText("Copies and Year must be actual numbers!");
@@ -663,6 +674,7 @@ public class LibraryGUI extends Application {
         tab.setContent(layout);
         return tab;
     }
+
     // --- THE  CATALOG PORTAL ---
     private Tab createAvailabilityTab() {
         Tab tab = new Tab("Availability & Search");
@@ -705,10 +717,15 @@ public class LibraryGUI extends Application {
         };
 
         // The critical lines that were missing to make it actually load!
-        tab.setOnSelectionChanged(e -> { if (tab.isSelected()) loadCatalog.run(); });
+        tab.setOnSelectionChanged(e -> {
+            if (tab.isSelected()) loadCatalog.run();
+        });
         loadCatalog.run();
 
-        clearBtn.setOnAction(e -> { searchInput.clear(); loadCatalog.run(); });
+        clearBtn.setOnAction(e -> {
+            searchInput.clear();
+            loadCatalog.run();
+        });
 
         searchBtn.setOnAction(e -> {
             displayList.getItems().clear();
@@ -813,7 +830,7 @@ public class LibraryGUI extends Application {
                     messageLabel.setTextFill(Color.RED);
                 }
             });
-    // --- RESERVE LOGIC ---
+            // --- RESERVE LOGIC ---
             reserveBtn.setOnAction(e -> {
                 String selected = displayList.getSelectionModel().getSelectedItem();
                 if (selected == null) {
@@ -925,6 +942,7 @@ public class LibraryGUI extends Application {
         tab.setContent(layout);
         return tab;
     }
+
     // --- THE  STUDY ROOM PORTAL ---
     private Tab createStudyRoomsTab() {
         Tab tab = new Tab("Study Rooms");
@@ -951,7 +969,9 @@ public class LibraryGUI extends Application {
             }
         };
 
-        tab.setOnSelectionChanged(e -> { if (tab.isSelected()) loadRooms.run(); });
+        tab.setOnSelectionChanged(e -> {
+            if (tab.isSelected()) loadRooms.run();
+        });
         loadRooms.run();
 
         HBox buttonBox = new HBox(10);
@@ -1000,6 +1020,7 @@ public class LibraryGUI extends Application {
         tab.setContent(layout);
         return tab;
     }
+
     // --- THE CUSTOM NOTIFICATION SYSTEM ---
     private void showNotification(String message, Stage stage) {
         // Only show if the user has notifications enabled
