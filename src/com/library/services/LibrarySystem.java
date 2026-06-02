@@ -88,6 +88,31 @@ public class LibrarySystem {
         }
     }
 
+    // Completely remove a book from the system
+    public void removeBookFromSystem(String bookId) throws Exception {
+        Book targetBook = findBookById(bookId);
+
+        // 1. Safety Check: Is anyone currently borrowing or waiting for this book?
+        for (Student student : registeredStudents) {
+            if (student.getBorrowedBooks().contains(targetBook)) {
+                throw new Exception("Cannot delete: " + student.getName() + " is currently holding this book!");
+            }
+            if (student.getReservedBooks().contains(targetBook)) {
+                throw new Exception("Cannot delete: " + student.getName() + " has this book reserved!");
+            }
+        }
+
+        // 2. Remove it from the main catalog
+        catalog.remove(targetBook);
+
+        // 3. Remove it from any librarian's managed list
+        for (Librarian staff : registeredStaff) {
+            staff.getManagedBooks().remove(targetBook);
+        }
+
+        System.out.println("System Update: " + targetBook.getTitle() + " was completely removed from the database.");
+    }
+
     public void registerStudent(Student student) {
         if (student != null && !registeredStudents.contains(student)) {
             registeredStudents.add(student);
@@ -186,6 +211,23 @@ public class LibrarySystem {
     }
 
     //  Manual Reservation Cancellation
+
+    public void cancelReservation(String studentId, String bookId) throws Exception {
+        // Search for book and student
+        Student foundStudentCan = findStudentById(studentId);
+        Book foundBookCan = findBookById(bookId);
+
+        // Check if the reservation actually exists
+        if (!foundStudentCan.getReservedBooks().contains(foundBookCan)) {
+            throw new Exception("Error: This student does not have a reservation for this book.");
+        }
+
+        // Remove the reservation safely
+        foundStudentCan.removeReservedBook(foundBookCan);
+
+        System.out.println("Reservation Cancelled: '" + foundBookCan.getTitle() + "' removed from " + foundStudentCan.getName() + "'s waitlist.");
+    }
+    // clear the transactions pdf, for cases when librirain adds copies of an empty book
     public void clearReservations(String bookId) {
         Book book = null;
         try { book = findBookById(bookId); } catch (Exception e) { return; }
@@ -218,7 +260,6 @@ public class LibrarySystem {
         target.setBooked(true);
         target.setOccupantId(userId);
     }
-
     public void leaveStudyRoom(String userId) throws Exception {
         for (com.library.models.StudyRoom room : rooms) {
             if (room.isBooked() && userId.equals(room.getOccupantId())) {
