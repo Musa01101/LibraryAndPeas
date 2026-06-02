@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="ome changes left" />
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="I added a new exception package, now I replace them">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -224,7 +227,23 @@
       <option name="project" value="LOCAL" />
       <updated>1780424057924</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="I added a new exception package, now I replace them">
+      <option name="closed" value="true" />
+      <created>1780430643118</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1780430643118</updated>
+    </task>
+    <task id="LOCAL-00016" summary="I added a new exception package, now I replace them">
+      <option name="closed" value="true" />
+      <created>1780430711151</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1780430711151</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -241,7 +260,8 @@
     <MESSAGE value="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab" />
     <MESSAGE value="Ugh, Finally!! GUI ready (needs supervision from Dr.Adel), Evryting works fine-bulletproof- the only thing i need rn is to make custom exceptions and some library of babel!!" />
     <MESSAGE value="ome changes left" />
-    <option name="LAST_COMMIT_MESSAGE" value="ome changes left" />
+    <MESSAGE value="I added a new exception package, now I replace them" />
+    <option name="LAST_COMMIT_MESSAGE" value="I added a new exception package, now I replace them" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -1,7 +1,7 @@
 package com.library.services;
 
 import com.library.models.*;
-
+import com.library.exceptions.*;
 import java.util.ArrayList;
 
 public class LibrarySystem {
@@ -137,7 +137,7 @@ public class LibrarySystem {
         }
         //  NEW: Check the Borrowing Cap
         if (foundStudent.getBorrowedBooks().size() >= 5) {
-            throw new Exception("Error: Student has reached the maximum borrowing limit of 5 books.");
+            throw new BorrowLimitExceededException(studentId, foundStudent.getBorrowedBooks().size());
         }
         // Step 4: If yes, subtract 1 copy and add the book to the student's borrowed list
         foundBook.setAvailableCopies(foundBook.getAvailableCopies() - 1);
@@ -191,7 +191,7 @@ public class LibrarySystem {
         // Step 3: Verify the Book is actually out of stock
         // A student shouldn't reserve a book if there are copies sitting on the shelf
         if (foundBookRes.getAvailableCopies() > 0) {
-            throw new Exception("Error: This book is currently available on the shelf. Use the borrow feature instead.");
+            throw new ReservationLimitException("Reservation limit exceeded");
         }
         //Step 4: Check the Reservation Cap; At my Library it's 3 at max
         if (foundStudentRes.getReservedBooks().size() >= 3) {
