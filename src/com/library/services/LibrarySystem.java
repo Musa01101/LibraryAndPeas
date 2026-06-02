@@ -186,21 +186,21 @@ public class LibrarySystem {
     }
 
     //  Manual Reservation Cancellation
-    public void cancelReservation(String studentId, String bookId) throws Exception {
+    public void clearReservations(String bookId) {
+        Book book = null;
+        try { book = findBookById(bookId); } catch (Exception e) { return; }
 
-        //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
-        Student foundStudentCan = findStudentById(studentId);
-        Book foundBookCan = findBookById(bookId);
-
-        // Step 3: Check if the reservation actually exists
-        if (!foundStudentCan.getReservedBooks().contains(foundBookCan)) {
-            throw new Exception("Error: This student does not have a reservation for this book.");
+        if (book.getAvailableCopies() > 0) {
+            for (Student s : registeredStudents) {
+                if (s.getReservedBooks().contains(book)) {
+                    s.removeReservedBook(book); // Clear the reservation
+                    s.borrowBook(book);
+                    s.setHasPendingNotification(true);
+                    book.setAvailableCopies(book.getAvailableCopies() - 1);
+                    System.out.println("Notification: " + s.getName() + " has been auto-assigned " + book.getTitle());
+                }
+            }
         }
-
-        // Step 4: Remove the reservation safely using your Student helper method
-        foundStudentCan.removeReservedBook(foundBookCan);
-
-        System.out.println("Reservation Cancelled: '" + foundBookCan.getTitle() + "' removed from " + foundStudentCan.getName() + "'s waitlist.");
     }
 
     public void bookStudyRoom(String userId, int roomNum) throws Exception {

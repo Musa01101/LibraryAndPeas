@@ -24,12 +24,12 @@ public class FileManager {
         try (PrintWriter out = new PrintWriter(BOOKS_FILE)) {
             for (Book book : catalog) {
                 out.println(
-                        book.getBookId() + "," +
-                                book.getTitle() + "," +
-                                book.getAuthor() + "," +
-                                book.getCategory() + "," +
-                                book.getIsbn() + "," +
-                                book.getAvailableCopies() + "," +
+                        book.getBookId() + "|" +
+                                book.getTitle() + "|" +
+                                book.getAuthor() + "|" +
+                                book.getCategory() + "|" +
+                                book.getIsbn() + "|" +
+                                book.getAvailableCopies() + "|" +
                                 book.getPublicationYear()
                 );
             }
@@ -67,7 +67,7 @@ public class FileManager {
     // as they implement ArrayList and call for catalog and the line;
     // It works perfectly fine as for now !:)
     private static Book getBook(String line) {
-        String[] data = line.split(",");
+        String[] data = line.split("\\|");
         // Rebuild the Book object
         // Note to self: Make sure the order here matches the order I saved them in Part 1!
         String id = data[0];

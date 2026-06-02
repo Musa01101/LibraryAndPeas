@@ -13,6 +13,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+import java.util.List;
+
+//Add librarian +1 to resrve for student(Done)
+//Add search by ID as well or make posible borrowing from the student portal? or remove search from student portal?
+//Add remove book function for librarian(check rubric)
+// Add all the exceptions
 public class LibraryGUI extends Application {
 
     // Boot up the core backend (automatically loads my text files)
@@ -243,6 +249,15 @@ public class LibraryGUI extends Application {
             root.getTabs().addAll(createLibrarianTab(), createAvailabilityTab());
         }
 
+    // --- CHECK FOR PENDING NOTIFICATIONS ---
+        if (currentUser instanceof Student) {
+            Student studentUser = (Student) currentUser;
+            if (studentUser.hasPendingNotification()) {
+                showNotification("Great news! Your reserved book is now available and has been added to your account.", stage);
+                studentUser.setHasPendingNotification(false); // Turn it off so it doesn't spam them
+                system.saveSystemData();
+            }
+        }
         // Put the top bar above the tabs
         mainLayout.setTop(topBar);
         mainLayout.setCenter(root);
@@ -277,7 +292,7 @@ public class LibraryGUI extends Application {
             String category = filterBox.getValue();
 
             // Start with the entire library catalog
-            java.util.List<Book> foundBooks = system.getCatalog();
+            List<Book> foundBooks = system.getCatalog();
 
             // 1. Filter by Category (if they didn't select "All")
             if (category != null && !category.equals("All")) {
@@ -578,6 +593,7 @@ public class LibraryGUI extends Application {
                 for (com.library.models.Book b : system.getCatalog()) {
                     if (b.getBookId().equals(bookId)) {
                         b.setAvailableCopies(b.getAvailableCopies() + qty);
+                        system.clearReservations(b.getBookId());
                         system.saveSystemData();
                         loadCatalog.run();
                         messageLabel.setText("Added " + qty + " copies to " + b.getTitle());
@@ -820,6 +836,7 @@ public class LibraryGUI extends Application {
                     for (Book b : system.getCatalog()) {
                         if (b.getBookId().equals(bookId)) {
                             b.setAvailableCopies(b.getAvailableCopies() + qty);
+                            system.clearReservations(b.getBookId());
                             system.saveSystemData();
                             loadCatalog.run();
                             messageLabel.setText("Added " + qty + " copies to " + b.getTitle());

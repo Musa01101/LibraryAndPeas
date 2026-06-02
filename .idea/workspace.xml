@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab">
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Ugh, Finally!! GUI ready (needs supervision from Dr.Adel), Evryting works fine-bulletproof- the only thing i need rn is to make custom exceptions and some library of babel!!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/LibraryGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/StudyRoom.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/StudyRoom.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/models/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Student.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
     </list>
@@ -47,25 +47,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.LibraryGUI.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TMP.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.LibraryGUI.executor": "Run",
+    "Application.TMP.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\musam\IdeaProjects\FarmlandAndPeace\src\com\library\models" />
@@ -213,7 +213,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780213591859</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Ugh, Finally!! GUI ready (needs supervision from Dr.Adel), Evryting works fine-bulletproof- the only thing i need rn is to make custom exceptions and some library of babel!!">
+      <option name="closed" value="true" />
+      <created>1780230414307</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1780230414307</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -228,7 +236,8 @@
     <MESSAGE value="Now good GUI, we can log in or sig in as a librarian and as a student, the ID is generated randomly and uniquely, also there were a problem where if we left everything blank it would record on student or staff txt  as null student and stuff which I implemented in my classes just in case of something bad happening, and it worked as swiss clock, Because I made one firewall, being that user need to confirm password if the user left it as blank(null) the system would allow him to enter and, ergo creating faulty credentials ,but I didn't want any garbage in .txts, so I made a second firewall which made sure to fields are left blank and allowed to use major from dropdown boc rather than free text box" />
     <MESSAGE value="Okay, massive GUI changes I delted previous array for study rooms and added a barnd new class in my models' for convinience when creating a GUI. Speaking of GUI i added a real list showing avialable books and avialbel rooms, no actions with them yet" />
     <MESSAGE value="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab" />
-    <option name="LAST_COMMIT_MESSAGE" value="Yay, GUI for students offcially done. My 'teammate' send his search engine files, search engine also implemented. Now what's keft is custom exceptions and librariian tab" />
+    <MESSAGE value="Ugh, Finally!! GUI ready (needs supervision from Dr.Adel), Evryting works fine-bulletproof- the only thing i need rn is to make custom exceptions and some library of babel!!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ugh, Finally!! GUI ready (needs supervision from Dr.Adel), Evryting works fine-bulletproof- the only thing i need rn is to make custom exceptions and some library of babel!!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -6,6 +6,7 @@ public class Student extends User {
     private String major;
     private final ArrayList<Book> borrowedBooks;
     private final ArrayList<Book> reservedBooks;
+    private boolean hasPendingNotification = false;
 
     public Student(String major, String name, String userId, String email, String password) {
         super(name, userId, email, password);
@@ -18,6 +19,10 @@ public class Student extends User {
     public boolean isEligibleForService() {
         return getUserId() != null && !getUserId().isEmpty() && getMajor() != null && !getMajor().equals("Undeclared");
     }
+
+    public boolean hasPendingNotification() {return hasPendingNotification;}
+    public void setHasPendingNotification(boolean hasPendingNotification) {this.hasPendingNotification = hasPendingNotification;}
+
 
     public String getMajor() {
         return major;
