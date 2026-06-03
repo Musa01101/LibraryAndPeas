@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="I added a new exception package, now I replace them">
-      <change afterPath="$PROJECT_DIR$/src/com/library/exceptions/BookInUseException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/library/exceptions/FileStorageException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/LibraryGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/exceptions/InvalidTransactionException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/exceptions/InvalidTransactionException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
-    </list>
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="wait" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -260,7 +251,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780431582269</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="wait">
+      <option name="closed" value="true" />
+      <created>1780477826384</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1780477826384</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -278,7 +277,8 @@
     <MESSAGE value="Ugh, Finally!! GUI ready (needs supervision from Dr.Adel), Evryting works fine-bulletproof- the only thing i need rn is to make custom exceptions and some library of babel!!" />
     <MESSAGE value="ome changes left" />
     <MESSAGE value="I added a new exception package, now I replace them" />
-    <option name="LAST_COMMIT_MESSAGE" value="I added a new exception package, now I replace them" />
+    <MESSAGE value="wait" />
+    <option name="LAST_COMMIT_MESSAGE" value="wait" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
