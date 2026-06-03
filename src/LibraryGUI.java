@@ -144,7 +144,7 @@ public class LibraryGUI extends Application {
         Button backBtn = new Button("Back to Login");
         Label messageLabel = new Label();
 
-        // --- FIXED: The Registration Logic is back inside the button click! ---
+        // --- FThe Registration Logic  ---
         registerBtn.setOnAction(e -> {
             // 0. Block empty submissions right away
             if (nameInput.getText().trim().isEmpty() ||
