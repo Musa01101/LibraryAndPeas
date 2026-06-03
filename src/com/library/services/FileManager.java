@@ -1,8 +1,7 @@
 package com.library.services;
 
-import com.library.models.Book;
-import com.library.models.Librarian;
-import com.library.models.Student;
+import com.library.models.*;
+import com.library.exceptions.*;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -35,32 +34,33 @@ public class FileManager {
             }
             System.out.println("Success: Catalog have been saved to " + BOOKS_FILE);
         } catch (Exception e) {
-            throw new Exception("Error saving books to file: " + e.getMessage());
+            throw new FileStorageException("saving books to", BOOKS_FILE, e.getMessage());
         }
     }
 
-    //Loading the Books method
-    public ArrayList<Book> loadBooks() throws Exception {
-        ArrayList<Book> loadedCatalog = new ArrayList<>();
-        File file = new File(BOOKS_FILE);
-        // Safety Check: If it's the very first time the exe is run, the file won't exist yet.
-        // We catch this so the program doesn't crash on day one.
-        if (!file.exists()) {
-            System.out.println("Notice: No existing books.txt found. Starting with an empty catalog.");
+        //Loading the Books method
+        public ArrayList<Book> loadBooks () throws Exception {
+            ArrayList<Book> loadedCatalog = new ArrayList<>();
+            File file = new File(BOOKS_FILE);
+            // Safety Check: If it's the very first time the exe is run, the file won't exist yet.
+            // We catch this so the program doesn't crash on day one.
+            if (!file.exists()) {
+                System.out.println("Notice: No existing books.txt found. Starting with an empty catalog.");
+                return loadedCatalog;
+            }
+            try (Scanner scanner = new Scanner(file)) {
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    // Chop the line of text into an array using the comma as the cut point
+                    loadedCatalog.add(getBook(line));
+                }
+                System.out.println("Success: Catalog successfully loaded from " + BOOKS_FILE);
+            } catch (Exception e) {
+                throw new FileStorageException("loading books from", BOOKS_FILE, e.getMessage());
+            }
             return loadedCatalog;
         }
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                // Chop the line of text into an array using the comma as the cut point
-                loadedCatalog.add(getBook(line));
-            }
-            System.out.println("Success: Catalog successfully loaded from " + BOOKS_FILE);
-        } catch (Exception e) {
-            throw new Exception("Error loading books from file: " + e.getMessage());
-        }
-        return loadedCatalog;
-    }
+
 
     //helper method;
     // I didn't do the same helper method for other methods,as making them would be too messy
@@ -87,21 +87,21 @@ public class FileManager {
     public void saveStudents(ArrayList<Student> registeredStudents) throws Exception {
         try (PrintWriter out = new PrintWriter(STUDENT_FILE)) {
             for (Student student : registeredStudents) {
-                out.println(student.getMajor() + "," +
-                        student.getName() + "," +
-                        student.getUserId() + "," +
-                        student.getEmail() + "," +
-                        student.getPassword() + "," +
+                out.println(student.getMajor() + "|" +
+                        student.getName() + "|" +
+                        student.getUserId() + "|" +
+                        student.getEmail() + "|" +
+                        student.getPassword() + "|" +
                         student.isReceiveNotifications());
                 System.out.println("Success: " + student.getName() + " has been saved!");
             }
             System.out.println("Finished writing to " + STUDENT_FILE);
         } catch (Exception e) {
-            throw new Exception("Error saving students to a file: " + e.getMessage());
+            throw new FileStorageException("saving students to", STUDENT_FILE, e.getMessage());
         }
     }
 
-    public ArrayList<Student> loadStudents() throws Exception {
+    public ArrayList<Student> loadStudents() throws FileStorageException {
         ArrayList<Student> loadedStudents = new ArrayList<>();
         File file = new File(STUDENT_FILE);
         if (!file.exists()) {
@@ -111,25 +111,24 @@ public class FileManager {
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                while (scanner.hasNextLine()) {
-                    String[] data = scanner.nextLine().split(",");
-                    Student loadedStudent = new Student(data[0], data[1], data[2], data[3], data[4]);
-                    // Safety check for older saves that only have 5 fields
-                    if (data.length > 5) {
-                        loadedStudent.setReceiveNotifications(Boolean.parseBoolean(data[5]));
-                    }
-                    loadedStudents.add(loadedStudent);
+                // Remember to use double backslashes to escape the pipe symbol!
+                String[] data = scanner.nextLine().split("\\|");
+                Student loadedStudent = new Student(data[0], data[1], data[2], data[3], data[4]);
+                // Safety check for older saves that only have 5 fields
+                if (data.length > 5) {
+                    loadedStudent.setReceiveNotifications(Boolean.parseBoolean(data[5]));
                 }
+                loadedStudents.add(loadedStudent);
             }
             System.out.println("Success: Students loaded from " + STUDENT_FILE);
         } catch (Exception e) {
-            throw new Exception("Error loading students: " + e.getMessage());
+            throw new FileStorageException("loading students from", STUDENT_FILE, e.getMessage());
         }
         return loadedStudents;
     }
 
     //______Transactions (The Ledger)______
-    public void saveTransactions(ArrayList<Student> students, ArrayList<com.library.models.StudyRoom> rooms) throws Exception {
+    public void saveTransactions(ArrayList<Student> students, ArrayList<StudyRoom> rooms) throws Exception {
         try (PrintWriter out = new PrintWriter(TRANSACTIONS_FILE)) {
             for (Student student : students) {
                 for (Book book : student.getBorrowedBooks()) {
@@ -140,18 +139,18 @@ public class FileManager {
                 }
             }
             // Tag booked rooms at the bottom, now including the occupantId!
-            for (com.library.models.StudyRoom room : rooms) {
+            for (StudyRoom room : rooms) {
                 if (room.isBooked() && room.getOccupantId() != null) {
                     out.println("ROOM," + room.getRoomNumber() + ",BOOKED," + room.getOccupantId());
                 }
             }
             System.out.println("Success: Transactions saved to " + TRANSACTIONS_FILE);
-        } catch (Exception e) {
-            throw new Exception("Error saving transactions: " + e.getMessage());
+        }catch (Exception e) {
+            throw new FileStorageException("saving transactions to", TRANSACTIONS_FILE, e.getMessage());
         }
     }
 
-    public void loadTransactions(ArrayList<Student> students, ArrayList<Book> catalog, ArrayList<com.library.models.StudyRoom> rooms) throws Exception {
+    public void loadTransactions(ArrayList<Student> students, ArrayList<Book> catalog, ArrayList<StudyRoom> rooms) throws Exception {
         File file = new File(TRANSACTIONS_FILE);
         if (!file.exists()) return;
 
@@ -165,7 +164,7 @@ public class FileManager {
                     // Safely grab the ID we just added
                     String occupantId = data.length > 3 ? data[3] : null;
 
-                    for (com.library.models.StudyRoom r : rooms) {
+                    for (StudyRoom r : rooms) {
                         if (r.getRoomNumber() == roomNum) {
                             r.setBooked(true);
                             r.setOccupantId(occupantId); // Restore ownership!
@@ -201,13 +200,12 @@ public class FileManager {
             }
             System.out.println("Success: Transactions loaded from " + TRANSACTIONS_FILE);
         } catch (Exception e) {
-            throw new Exception("Error loading transactions: " + e.getMessage());
+            throw new FileStorageException("loading transactions from", TRANSACTIONS_FILE, e.getMessage());
         }
     }
 
-    //______Librarians______
     //Saving the Librarians  method
-    public void saveLibrarians(ArrayList<Librarian> registeredStaff) throws Exception {
+    public void saveLibrarians(ArrayList<Librarian> registeredStaff) throws FileStorageException {
         try (PrintWriter out = new PrintWriter(STAFF_FILE)) {
             for (Librarian staff : registeredStaff) {
                 String name = staff.getName();
@@ -224,19 +222,18 @@ public class FileManager {
                     managedIds.setLength(managedIds.length() - 1);
                 }
 
-                out.println(name + ","
-                        + id + ","
-                        + email + ","
-                        + password + ","
-                        + staffNumber + ","
+                out.println(name + "|"
+                        + id + "|"
+                        + email + "|"
+                        + password + "|"
+                        + staffNumber + "|"
                         + managedIds);
                 System.out.println("Success: " + staff.getName() + " has been saved!");
             }
             System.out.println("Finished writing to " + STAFF_FILE);
         } catch (Exception e) {
-            throw new Exception("Error saving staff to file: " + e.getMessage());
+            throw new FileStorageException("saving staff to", STAFF_FILE, e.getMessage());
         }
-
     }
 
     //Loading the Librarians methods
@@ -250,7 +247,7 @@ public class FileManager {
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] data = line.split(",");
+                String[] data = line.split("\\|");
                 String name = data[0];
                 String userId = data[1];
                 String email = data[2];
@@ -275,7 +272,7 @@ public class FileManager {
             }
             System.out.println("Success: Librarian successfully loaded from " + STAFF_FILE);
         } catch (Exception e) {
-            throw new Exception("Error reading from librarian file: " + e.getMessage());
+            throw new FileStorageException("loading staff from", STAFF_FILE, e.getMessage());
         }
         return loadedLibrarian;
     }

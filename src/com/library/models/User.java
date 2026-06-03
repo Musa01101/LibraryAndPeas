@@ -61,7 +61,9 @@ public abstract class User {
     }
 
     public void setPassword(String password) {
-        if (password != null && !password.isEmpty() && password.trim().length() >= 6) {
+        if (password != null && !password.isEmpty() && password.trim().length() >= 6 &&
+                !password.contains("|") && !password.contains(",") &&
+                !password.contains("\\") && !password.contains("/")) {
             this.password = password;
         } else {
             this.password = "InvalidPassword";

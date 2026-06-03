@@ -8,9 +8,9 @@ public class LibrarySystem {
     private ArrayList<Book> catalog;
     private ArrayList<Student> registeredStudents;
     private ArrayList<Librarian> registeredStaff;
-    private ArrayList<StudyRoom> rooms = new ArrayList<>();
+    private  ArrayList<StudyRoom> rooms = new ArrayList<>();
 
-    private FileManager fileManager;
+    private  FileManager fileManager;
 
     public LibrarySystem() {
         this.catalog = new ArrayList<>();
@@ -93,12 +93,13 @@ public class LibrarySystem {
         Book targetBook = findBookById(bookId);
 
         // 1. Safety Check: Is anyone currently borrowing or waiting for this book?
+// 1. Safety Check: Is anyone currently borrowing or waiting for this book?
         for (Student student : registeredStudents) {
             if (student.getBorrowedBooks().contains(targetBook)) {
-                throw new Exception("Cannot delete: " + student.getName() + " is currently holding this book!");
+                throw new BookInUseException(bookId, student.getName(), "borrowed");
             }
             if (student.getReservedBooks().contains(targetBook)) {
-                throw new Exception("Cannot delete: " + student.getName() + " has this book reserved!");
+                throw new BookInUseException(bookId, student.getName(), "reserved");
             }
         }
 
@@ -132,8 +133,7 @@ public class LibrarySystem {
         Book foundBook = findBookById(bookId);
         // Step 3: Check if book.getAvailableCopies() > 0
         if (foundBook.getAvailableCopies() <= 0) {
-            // TODO: Replace with Suhail's BookUnavailableException
-            throw new Exception("Error: No available copies left for this book.");
+            throw new BookUnavailableException(foundBook.getTitle(), true);
         }
         //  NEW: Check the Borrowing Cap
         if (foundStudent.getBorrowedBooks().size() >= 5) {
@@ -154,7 +154,7 @@ public class LibrarySystem {
         Book foundBookR = findBookById(bookId);
         //Step 3: Does the student own the book?
         if (!foundStudentR.getBorrowedBooks().contains(foundBookR)) {
-            throw new Exception("Error: Book is not borrowed in the system.");
+            throw new InvalidTransactionException(studentId, bookId, InvalidTransactionException.Reason.BOOK_NOT_BORROWED);
         }
         // Step 4: Execute the Return safely
         foundStudentR.giveBorrowedBook(foundBookR);
@@ -188,23 +188,27 @@ public class LibrarySystem {
         //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
         Student foundStudentRes = findStudentById(studentId);
         Book foundBookRes = findBookById(bookId);
+
         // Step 3: Verify the Book is actually out of stock
-        // A student shouldn't reserve a book if there are copies sitting on the shelf
         if (foundBookRes.getAvailableCopies() > 0) {
-            throw new ReservationLimitException("Reservation limit exceeded");
+            throw new ReservationLimitException("Cannot reserve an available book.");
         }
+
         //Step 4: Check the Reservation Cap; At my Library it's 3 at max
         if (foundStudentRes.getReservedBooks().size() >= 3) {
-            throw new Exception("Error: Student has reached the maximum limit of 3 book reservations");
+            throw new ReservationLimitException(foundStudentRes.getName(), 3);
         }
+
         //Step 5: Check if the study have already reserved this exact Book
         if (foundStudentRes.getReservedBooks().contains(foundBookRes)) {
-            throw new Exception("Error: The student has already placed a reservation on this book.");
+            throw new InvalidTransactionException(studentId, bookId, InvalidTransactionException.Reason.DUPLICATE_BORROW);
         }
+
         //Step 6: Check if the student have already borrowed this book?
         if (foundStudentRes.getBorrowedBooks().contains(foundBookRes)) {
-            throw new Exception("Error: You cannot reserve a book you already have borrowed!");
+            throw new InvalidTransactionException(studentId, bookId, InvalidTransactionException.Reason.DUPLICATE_BORROW);
         }
+
         // Step 7: Execute the Reservation safely
         foundStudentRes.addReserveBook(foundBookRes);
         System.out.println("Reservation Successful: '" + foundBookRes.getTitle() + "' has been reserved for " + foundStudentRes.getName());
@@ -219,7 +223,7 @@ public class LibrarySystem {
 
         // Check if the reservation actually exists
         if (!foundStudentCan.getReservedBooks().contains(foundBookCan)) {
-            throw new Exception("Error: This student does not have a reservation for this book.");
+            throw new InvalidTransactionException(studentId, bookId, InvalidTransactionException.Reason.RESERVATION_NOT_FOUND);
         }
 
         // Remove the reservation safely
@@ -246,17 +250,21 @@ public class LibrarySystem {
     }
 
     public void bookStudyRoom(String userId, int roomNum) throws Exception {
+        // Boundary check for valid rooms (1-5)
+        if (roomNum < 1 || roomNum > 5) {
+            throw new InvalidRoomException(roomNum);
+        }
         // 1. Check if the student already has a room
         for (com.library.models.StudyRoom room : rooms) {
             if (room.isBooked() && userId.equals(room.getOccupantId())) {
-                throw new Exception("You already have a room booked! Leave it first.");
+                throw new InvalidTransactionException(userId, "ROOM", InvalidTransactionException.Reason.ALREADY_HAS_ROOM);
             }
         }
-
         // 2. Book the specific room
         com.library.models.StudyRoom target = rooms.get(roomNum - 1);
-        if (target.isBooked()) throw new Exception("Room is already occupied!");
-
+        if (target.isBooked()) {
+            throw new RoomOccupiedException(roomNum, "Current Session", target.getOccupantId());
+        }
         target.setBooked(true);
         target.setOccupantId(userId);
     }
@@ -268,8 +276,9 @@ public class LibrarySystem {
                 return;
             }
         }
-        throw new Exception("You don't have a room booked!");
+        throw new InvalidTransactionException(userId, "ROOM", InvalidTransactionException.Reason.NO_ROOM_BOOKED);
     }
+
 
 
     //  My Helper Methods for studentId and bookId and UserId, just in case if
@@ -281,7 +290,7 @@ public class LibrarySystem {
             }
         }
         // If the loop finishes without returning, the student doesn't exist
-        throw new Exception("Error: Student ID '" + studentId + "' not found.");
+        throw new UserNotFoundException(studentId, UserNotFoundException.LookupField.ID);
     }
 
     public User findUserById(String userId) throws Exception {
@@ -293,7 +302,7 @@ public class LibrarySystem {
         for (Librarian l : registeredStaff) {
             if (l.getUserId().equals(userId)) return l;
         }
-        throw new Exception("Error: User ID '" + userId + "' not found.");
+        throw new UserNotFoundException(userId, UserNotFoundException.LookupField.ID);
     }
 
     private Book findBookById(String bookId) throws Exception {
@@ -302,7 +311,7 @@ public class LibrarySystem {
                 return book; // Return immediately when found
             }
         }
-        throw new Exception("Error: Book ID '" + bookId + "' not found.");
+        throw new BookNotFoundException(bookId, BookNotFoundException.LookupField.ID);
     }
 
 

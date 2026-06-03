@@ -149,92 +149,19 @@ public class LibraryGUI extends Application {
         Button registerBtn = new Button("Register");
         Button backBtn = new Button("Back to Login");
         Label messageLabel = new Label();
+        String passwordText = passInput.getText();
 
-        registerBtn.setOnAction(e -> {
-            // 0. Block empty submissions right away
-            if (nameInput.getText().trim().isEmpty() ||
-                    emailInput.getText().trim().isEmpty() ||
-                    passInput.getText().isEmpty()) {
-                messageLabel.setText("Please fill out all fields!");
-                messageLabel.setTextFill(Color.RED);
-                return;
-            }
-            //1. Check email for UNIQUENESS
-            String checkEmail = emailInput.getText().trim();
-            boolean emailExists = false;
-            // Check if any student has this email
-            for (User u : system.getRegisteredStudents()) {
-                if (u.getEmail().equalsIgnoreCase(checkEmail)) {
-                    emailExists = true;
-                    break;
-                }
-            }
-            // Check if any librarian has this email
-            if (!emailExists) {
-                for (User u : system.getRegisteredStaff()) {
-                    if (u.getEmail().equalsIgnoreCase(checkEmail)) {
-                        emailExists = true;
-                        break;
-                    }
-                }
-            }
-            if (emailExists) {
-                messageLabel.setText("Account with this email already exists! Try to login.");
-                messageLabel.setTextFill(Color.RED);
-                return; // Stop the registration process!
-            }
-            // 2. Block passwords that are too short
-            if (passInput.getText().length() < 6) {
-                messageLabel.setText("Password must be at least 6 characters!");
-                messageLabel.setTextFill(Color.RED);
-                return;
-            }
+        if (passwordText.trim().length() < 6) {
+            messageLabel.setText("Password must be at least 6 characters!");
+            messageLabel.setTextFill(Color.RED);
+            return;
+        }
 
-            // 3. Check if passwords match
-            if (!passInput.getText().equals(confirmPassInput.getText())) {
-                messageLabel.setText("Passwords do not match!");
-                messageLabel.setTextFill(Color.RED);
-                return;
-            }
-
-            try {
-                // Auto-generate a random 4-digit ID based on role
-                String prefix = roleBox.getValue().equals("Student") ? "S" : "L";
-                String generatedId = prefix + (int) (Math.random() * 9000 + 1000);
-
-                if (roleBox.getValue().equals("Student")) {
-                    String selectedMajor = majorCombo.getValue();
-                    if (selectedMajor == null) {
-                        messageLabel.setText("Please select a major!");
-                        messageLabel.setTextFill(Color.RED);
-                        return;
-                    }
-
-                    Student newStudent = new Student(
-                            selectedMajor, nameInput.getText(), generatedId, emailInput.getText(), passInput.getText()
-                    );
-                    system.registerStudent(newStudent);
-                } else {
-                    if (staffNumInput.getText().trim().isEmpty()) {
-                        messageLabel.setText("Please enter a Staff Number!");
-                        messageLabel.setTextFill(Color.RED);
-                        return;
-                    }
-
-                    Librarian newLibrarian = new Librarian(
-                            nameInput.getText(), generatedId, emailInput.getText(), passInput.getText(), staffNumInput.getText()
-                    );
-                    system.registerStaff(newLibrarian);
-                }
-
-                system.saveSystemData();
-                showLoginScreen(stage);
-
-            } catch (Exception ex) {
-                messageLabel.setText("Error creating account!");
-                messageLabel.setTextFill(Color.RED);
-            }
-        });
+        if (passwordText.contains("|") || passwordText.contains(",") ||
+                passwordText.contains("\\") || passwordText.contains("/")) {
+            messageLabel.setText("Password cannot contain |, commas, or slashes!");
+            messageLabel.setTextFill(Color.RED);
+            return;
 
         backBtn.setOnAction(e -> showLoginScreen(stage));
 

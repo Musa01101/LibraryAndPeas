@@ -5,7 +5,10 @@ public class InvalidTransactionException extends Exception {
         BOOK_NOT_BORROWED,
         DUPLICATE_BORROW,
         MALFORMED_RECORD,
-        MISMATCHED_USER
+        MISMATCHED_USER,
+        RESERVATION_NOT_FOUND,
+        ALREADY_HAS_ROOM,
+        NO_ROOM_BOOKED
     }
 
     private final String studentId;
