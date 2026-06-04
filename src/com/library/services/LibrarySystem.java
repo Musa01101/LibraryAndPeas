@@ -227,7 +227,7 @@ public class LibrarySystem {
         targetBook.setAvailableCopies(newCopies);
         targetBook.setPublicationYear(newYear);
 
-        System.out.println("System Update: " + targetBook.getBookId() + " has been successfully updated.");
+        System.out.println("System Update: " + targetBook.getBookId() +" "+ targetBook.getTitle()+" has been successfully updated.");
     }
 
     //  Manual Reservation Cancellation

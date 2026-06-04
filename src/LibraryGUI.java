@@ -428,144 +428,110 @@ public class LibraryGUI extends Application {
         VBox layout = new VBox(15);
         layout.setPadding(new Insets(20));
 
-        // --- ADD NEW BOOK SECTION ---
-        Label addLabel = new Label("Add New Book to Catalog");
+        // --- ADD/EDIT FORM UI ---
+        Label addLabel = new Label("Add / Edit Book in Catalog");
         addLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
 
-        // Using GridPane to make the form look clean and organized
-        GridPane addForm = new GridPane();
-        addForm.setHgap(10);
-        addForm.setVgap(10);
+        javafx.scene.layout.GridPane addForm = new javafx.scene.layout.GridPane();
+        addForm.setHgap(10); addForm.setVgap(10);
 
-
-        TextField titleInput = new TextField();
-        titleInput.setPromptText("Title");
-        TextField authorInput = new TextField();
-        authorInput.setPromptText("Author");
-
+        TextField titleInput = new TextField(); titleInput.setPromptText("Title");
+        TextField authorInput = new TextField(); authorInput.setPromptText("Author");
         ComboBox<String> categoryInput = new ComboBox<>();
         categoryInput.getItems().addAll("Fiction", "Education", "Computer Science", "Science", "History");
         categoryInput.setPromptText("Select Category");
+        TextField copiesInput = new TextField(); copiesInput.setPromptText("Copies (e.g. 5)");
+        TextField yearInput = new TextField(); yearInput.setPromptText("Year (e.g. 2024)");
 
-        TextField copiesInput = new TextField();
-        copiesInput.setPromptText("Copies (e.g. 5)");
-        TextField yearInput = new TextField();
-        yearInput.setPromptText("Year (e.g. 2024)");
+        addForm.add(new Label("Title:"), 0, 0);    addForm.add(titleInput, 1, 0);
+        addForm.add(new Label("Author:"), 0, 1);   addForm.add(authorInput, 1, 1);
+        addForm.add(new Label("Category:"), 0, 2); addForm.add(categoryInput, 1, 2);
+        addForm.add(new Label("Copies:"), 2, 0);   addForm.add(copiesInput, 3, 0);
+        addForm.add(new Label("Year:"), 2, 1);     addForm.add(yearInput, 3, 1);
 
-        // Left Column (Removed Book ID)
-        addForm.add(new Label("Title:"), 0, 0);
-        addForm.add(titleInput, 1, 0);
-        addForm.add(new Label("Author:"), 0, 1);
-        addForm.add(authorInput, 1, 1);
-        addForm.add(new Label("Category:"), 0, 2);
-        addForm.add(categoryInput, 1, 2);
-
-        // Right Column (Removed ISBN)
-        addForm.add(new Label("Copies:"), 2, 0);
-        addForm.add(copiesInput, 3, 0);
-        addForm.add(new Label("Year:"), 2, 1);
-        addForm.add(yearInput, 3, 1);
-
-
-
-        // Adding a new book
+        // --- TOP BUTTONS ---
         Button addBtn = new Button("Add Book");
+
+        String[] currentEditId = {null};
+        Button saveChangesBtn = new Button("Save Changes");
+        saveChangesBtn.setDisable(true);
+        saveChangesBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+
+        HBox topButtonsBox = new HBox(10, addBtn, saveChangesBtn);
         Label messageLabel = new Label();
 
-        addBtn.setOnAction(e -> {
-            // Quick check to make sure they didn't leave critical fields blank
-            if (titleInput.getText().isEmpty() || categoryInput.getValue() == null) {
-                messageLabel.setText("Title, and Category are required!");
-                messageLabel.setTextFill(Color.RED);
-                return;
-            }
-
-            try {
-                // Convert text to numbers
-                int copies = Integer.parseInt(copiesInput.getText());
-                int year = Integer.parseInt(yearInput.getText());
-
-                // ---  YEAR VALIDATION ---
-                int currentYear = java.time.Year.now().getValue();
-                if (year > currentYear || year < 1000) {
-                    messageLabel.setText("Invalid year! Must be between 1000 and " + currentYear + "!");
-                    messageLabel.setTextFill(Color.RED);
-                    return;
-                }
-
-                // --- DUPLICATE CHECK ---
-                for (Book b : system.getCatalog()) {
-                    if (b.getTitle().equalsIgnoreCase(titleInput.getText().trim()) &&
-                            b.getAuthor().equalsIgnoreCase(authorInput.getText().trim())) {
-
-                        messageLabel.setText("This exact book already exists in the catalog!");
-                        messageLabel.setTextFill(Color.RED);
-                        return;
-                    }
-                }
-
-                // --- AUTO-GENERATE BOOK ID ---
-                int maxId = 0;
-                for (Book b : system.getCatalog()) {
-                    try {
-                        // Extract the number from previous book (e.g "B07")
-                        int currentNum = Integer.parseInt(b.getBookId().replace("B", ""));
-                        if (currentNum > maxId) {
-                            maxId = currentNum;
-                        }
-                    } catch (Exception ignored) {
-                    } // Ignores any weirdly formatted old IDs from previous versions
-                }
-                // Formats the next number to always have 2 digits (like: B08, B09, B10)
-                String autoBookId = String.format("B%02d", maxId + 1);
-
-                // --- AUTO-GENERATE UNIQUE ISBN ---
-                String autoIsbn = "ISBN-" + (long) (Math.random() * 9000000000L + 1000000000L);
-
-                // Create the book with mine auto-generated data
-                Book newBook = new Book(
-                        autoBookId, titleInput.getText(), authorInput.getText(),
-                        categoryInput.getValue(), autoIsbn, copies, year
-                );
-
-                system.addBookToCatalog(newBook, (Librarian) currentUser);
-                system.saveSystemData();
-
-                messageLabel.setText("Successfully added! Assigned ID: " + autoBookId);
-                messageLabel.setTextFill(Color.GREEN);
-
-                // Clear the form
-                titleInput.clear();
-                authorInput.clear();
-                copiesInput.clear();
-                yearInput.clear();
-                categoryInput.setValue(null);
-            } catch (NumberFormatException ex) {
-                messageLabel.setText("Copies and Year must be actual numbers!");
-                messageLabel.setTextFill(Color.RED);
-            }
-        });
-
-        // --- UPDATE INVENTORY SECTION ---
+        // --- CATALOG UI ---
         Separator sep = new Separator();
         Label updateLabel = new Label("Update Existing Inventory");
         updateLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-        String[] currentEditId = {null} ;
-        Button saveChangesBtn = new Button("Save Changes");
-        saveChangesBtn.setDisable(true); // Locked until they enter edit mode
-        saveChangesBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+
         ListView<String> catalogList = new ListView<>();
         catalogList.setPrefHeight(150);
 
-        // Auto-refresh the list
         Runnable loadCatalog = () -> {
             catalogList.getItems().clear();
             for (Book b : system.getCatalog()) {
                 catalogList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle() + " | ISBN: " + b.getIsbn() + " (" + b.getAvailableCopies() + " available)");
             }
         };
+        tab.setOnSelectionChanged(event -> { if (tab.isSelected()) loadCatalog.run(); });
+        loadCatalog.run();
 
-        // --- SAVE CHANGES LOGIC ---
+        // --- BOTTOM BUTTONS ---
+        HBox updateBox = new HBox(10);
+        updateBox.setAlignment(Pos.CENTER_LEFT);
+        TextField qtyInput = new TextField(); qtyInput.setPromptText("Qty"); qtyInput.setPrefWidth(60);
+
+        Button addQtyBtn = new Button("Add Copies");
+        Button removeQtyBtn = new Button("Remove Copies");
+        Button editBookBtn = new Button("Edit Book"); // RIGHT HERE!
+        Button deleteBookBtn = new Button("Delete Book");
+        deleteBookBtn.setStyle("-fx-background-color: #ff4c4c; -fx-text-fill: white;");
+
+        updateBox.getChildren().addAll(new Label("Modify Stock:"), qtyInput, addQtyBtn, removeQtyBtn, editBookBtn, deleteBookBtn);
+
+        // --- BUTTON LOGIC ---
+        addBtn.setOnAction(e -> {
+            if (titleInput.getText().isEmpty() || categoryInput.getValue() == null) {
+                messageLabel.setText("Title and Category are required!"); messageLabel.setTextFill(Color.RED); return;
+            }
+            try {
+                int copies = Integer.parseInt(copiesInput.getText());
+                int year = Integer.parseInt(yearInput.getText());
+                int currentYear = java.time.Year.now().getValue();
+
+                if (year > currentYear || year < 1000) {
+                    messageLabel.setText("Invalid year!"); messageLabel.setTextFill(Color.RED); return;
+                }
+
+                for (Book b : system.getCatalog()) {
+                    if (b.getTitle().equalsIgnoreCase(titleInput.getText().trim()) && b.getAuthor().equalsIgnoreCase(authorInput.getText().trim())) {
+                        messageLabel.setText("This exact book already exists in the catalog!"); messageLabel.setTextFill(Color.RED); return;
+                    }
+                }
+
+                int maxId = 0;
+                for (Book b : system.getCatalog()) {
+                    try {
+                        int currentNum = Integer.parseInt(b.getBookId().replace("B", ""));
+                        if (currentNum > maxId) maxId = currentNum;
+                    } catch (Exception ignored) {}
+                }
+                String autoBookId = String.format("B%02d", maxId + 1);
+                String autoIsbn = "ISBN-" + (long) (Math.random() * 9000000000L + 1000000000L);
+
+                Book newBook = new Book(autoBookId, titleInput.getText(), authorInput.getText(), categoryInput.getValue(), autoIsbn, copies, year);
+                system.addBookToCatalog(newBook, (Librarian) currentUser);
+                system.saveSystemData();
+                loadCatalog.run();
+
+                messageLabel.setText("Successfully added! Assigned ID: " + autoBookId); messageLabel.setTextFill(Color.GREEN);
+                titleInput.clear(); authorInput.clear(); copiesInput.clear(); yearInput.clear(); categoryInput.setValue(null);
+            } catch (NumberFormatException ex) {
+                messageLabel.setText("Copies and Year must be actual numbers!"); messageLabel.setTextFill(Color.RED);
+            }
+        });
+
         saveChangesBtn.setOnAction(e -> {
             try {
                 String id = currentEditId[0];
@@ -576,192 +542,126 @@ public class LibraryGUI extends Application {
                 int year = Integer.parseInt(yearInput.getText().trim());
 
                 if (title.isEmpty() || author.isEmpty() || category == null) {
-                    messageLabel.setText("All fields must be filled!");
-                    messageLabel.setTextFill(Color.RED);
-                    return;
+                    messageLabel.setText("All fields must be filled!"); messageLabel.setTextFill(Color.RED); return;
                 }
 
-                // Push updates to the backend
                 system.updateBookDetails(id, title, author, category, copies, year);
                 system.saveSystemData();
-                loadCatalog.run(); // Refresh the list
+                loadCatalog.run();
 
-                // Reset the form
-                titleInput.clear();
-                authorInput.clear();
-                categoryInput.setValue(null);
-                copiesInput.clear();
-                yearInput.clear();
+                titleInput.clear(); authorInput.clear(); categoryInput.setValue(null); copiesInput.clear(); yearInput.clear();
                 currentEditId[0] = null;
                 saveChangesBtn.setDisable(true);
+                addBtn.setDisable(false); // Turn add button back on
 
-                messageLabel.setText("Successfully updated " + id + ": " + title);
-                messageLabel.setTextFill(Color.GREEN);
-
+                messageLabel.setText("Successfully updated " + id + ": " + title); messageLabel.setTextFill(Color.GREEN);
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Copies and Year must be valid numbers!");
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Copies and Year must be valid numbers!"); messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage());
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
             }
         });
 
+        editBookBtn.setOnAction(e -> {
+            String selected = catalogList.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                messageLabel.setText("Select a book to edit first!"); messageLabel.setTextFill(Color.RED); return;
+            }
+            try {
+                String bookId = selected.substring(4, selected.indexOf(" |"));
+                for (Book b : system.getCatalog()) {
+                    if (b.getBookId().equals(bookId)) {
+                        titleInput.setText(b.getTitle());
+                        authorInput.setText(b.getAuthor());
+                        categoryInput.setValue(b.getCategory());
+                        copiesInput.setText(String.valueOf(b.getAvailableCopies()));
+                        yearInput.setText(String.valueOf(b.getPublicationYear()));
 
-        tab.setOnSelectionChanged(event -> {
-            if (tab.isSelected()) loadCatalog.run();
+                        currentEditId[0] = bookId;
+                        saveChangesBtn.setDisable(false);
+                        addBtn.setDisable(true); // Lock the add button so you don't accidentally create a duplicate
+
+                        messageLabel.setText("Editing " + bookId + ". Make your changes in the form above.");
+                        messageLabel.setTextFill(Color.BLUE);
+                        break;
+                    }
+                }
+            } catch (Exception ex) {
+                messageLabel.setText("Error loading book data."); messageLabel.setTextFill(Color.RED);
+            }
         });
-        loadCatalog.run();
 
-        HBox updateBox = new HBox(10);
-        updateBox.setAlignment(Pos.CENTER_LEFT);
-
-        TextField qtyInput = new TextField();
-        qtyInput.setPromptText("Qty");
-        qtyInput.setPrefWidth(60);
-
-        Button addQtyBtn = new Button("Add Copies");
-        Button removeQtyBtn = new Button("Remove Copies");
-        Button editBookBtn = new Button("Edit Book");
-        Button deleteBookBtn = new Button("Delete Book");
-        deleteBookBtn.setStyle("-fx-background-color: #ff4c4c; -fx-text-fill: white;"); // Make it red so you don't click it by accident
-
-        updateBox.getChildren().addAll(new Label("Modify Stock:"), qtyInput, addQtyBtn, removeQtyBtn, editBookBtn, deleteBookBtn);
-        // Logic for adding stock
         addQtyBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null || qtyInput.getText().isEmpty()) {
-                messageLabel.setText("Select a book and enter a quantity!");
-                messageLabel.setTextFill(Color.RED);
-                return;
+                messageLabel.setText("Select a book and enter a quantity!"); messageLabel.setTextFill(Color.RED); return;
             }
             try {
                 int qty = Integer.parseInt(qtyInput.getText());
                 String bookId = selected.substring(4, selected.indexOf(" |"));
-
                 for (Book b : system.getCatalog()) {
                     if (b.getBookId().equals(bookId)) {
                         b.setAvailableCopies(b.getAvailableCopies() + qty);
                         system.clearReservations(b.getBookId());
                         system.saveSystemData();
                         loadCatalog.run();
-                        messageLabel.setText("Added " + qty + " copies to " + b.getTitle());
-                        messageLabel.setTextFill(Color.GREEN);
+                        messageLabel.setText("Added " + qty + " copies to " + b.getTitle()); messageLabel.setTextFill(Color.GREEN);
                         qtyInput.clear();
                         break;
                     }
                 }
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Quantity must be a number!");
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Quantity must be a number!"); messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage());
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
             }
         });
 
-        // Logic for removing stock
         removeQtyBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null || qtyInput.getText().isEmpty()) {
-                messageLabel.setText("Select a book and enter a quantity!");
-                messageLabel.setTextFill(Color.RED);
-                return;
+                messageLabel.setText("Select a book and enter a quantity!"); messageLabel.setTextFill(Color.RED); return;
             }
             try {
                 int qty = Integer.parseInt(qtyInput.getText());
                 String bookId = selected.substring(4, selected.indexOf(" |"));
-
                 for (Book b : system.getCatalog()) {
                     if (b.getBookId().equals(bookId)) {
                         if (b.getAvailableCopies() - qty < 0) {
-                            messageLabel.setText("Cannot remove more copies than available!");
-                            messageLabel.setTextFill(Color.RED);
-                            return;
+                            messageLabel.setText("Cannot remove more copies than available!"); messageLabel.setTextFill(Color.RED); return;
                         }
                         b.setAvailableCopies(b.getAvailableCopies() - qty);
                         system.saveSystemData();
                         loadCatalog.run();
-                        messageLabel.setText("Removed " + qty + " copies from " + b.getTitle());
-                        messageLabel.setTextFill(Color.GREEN);
+                        messageLabel.setText("Removed " + qty + " copies from " + b.getTitle()); messageLabel.setTextFill(Color.GREEN);
                         qtyInput.clear();
                         break;
                     }
                 }
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Quantity must be a number!");
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Quantity must be a number!"); messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage());
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
             }
         });
 
-        // Logic for editing a  book's information
-        editBookBtn.setOnAction(e -> {
-            String selected = catalogList.getSelectionModel().getSelectedItem();
-            if (selected == null) {
-                messageLabel.setText("Select a book to edit first!");
-                messageLabel.setTextFill(Color.RED);
-                return;
-            }
-            try {
-                // Extract the ID from the list string
-                String bookId = selected.substring(4, selected.indexOf(" |"));
-
-                // Find the actual book object in the catalog
-                for (Book b : system.getCatalog()) {
-                    if (b.getBookId().equals(bookId)) {
-                        // Populate the top form with this book's data
-                        titleInput.setText(b.getTitle());
-                        authorInput.setText(b.getAuthor());
-                        categoryInput.setValue(b.getCategory());
-                        copiesInput.setText(String.valueOf(b.getAvailableCopies()));
-                        yearInput.setText(String.valueOf(b.getPublicationYear()));
-                        // Sned a signal, so system knows we are in edit mode:
-                        currentEditId[0] = bookId;
-                        saveChangesBtn.setDisable(false);
-
-                        messageLabel.setText("Editing " + bookId + ". Make your changes in the form above.");
-                        messageLabel.setTextFill(Color.BLUE); // Blue to indicate "Edit Mode"
-                        break;
-                    }
-                }
-            } catch (Exception ex) {
-                messageLabel.setText("Error loading book data.");
-                messageLabel.setTextFill(Color.RED);
-            }
-        });
-
-        // Logic for annihilating a  book
         deleteBookBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null) {
-                messageLabel.setText("Select a book to delete first!");
-                messageLabel.setTextFill(Color.RED);
-                return;
+                messageLabel.setText("Select a book to delete first!"); messageLabel.setTextFill(Color.RED); return;
             }
             try {
-                // Extract the ID from the list string
                 String bookId = selected.substring(4, selected.indexOf(" |"));
-
-                // Call the backend method we just wrote
                 system.removeBookFromSystem(bookId);
-
                 system.saveSystemData();
-                loadCatalog.run(); // Refresh the screen
-
-                messageLabel.setText("Permanently deleted " + bookId + " from the catalog.");
-                messageLabel.setTextFill(Color.GREEN);
-
+                loadCatalog.run();
+                messageLabel.setText("Permanently deleted " + bookId + " from the catalog."); messageLabel.setTextFill(Color.GREEN);
             } catch (Exception ex) {
-                // This will catch the error if a student is currently holding the book!
-                messageLabel.setText(ex.getMessage());
-                messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
             }
         });
 
-        layout.getChildren().addAll(addLabel, addForm, addBtn, sep, updateLabel, catalogList, updateBox, messageLabel);
+        layout.getChildren().addAll(addLabel, addForm, topButtonsBox, sep, updateLabel, catalogList, updateBox, messageLabel);
         tab.setContent(layout);
         return tab;
     }
