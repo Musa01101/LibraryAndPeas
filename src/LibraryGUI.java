@@ -9,9 +9,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.scene.layout.FlowPane;
 
 public class LibraryGUI extends Application {
 
@@ -271,7 +273,7 @@ public class LibraryGUI extends Application {
         root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         if (currentUser instanceof Student) {
-            root.getTabs().addAll(createStudentTab(), createAvailabilityTab(), createStudyRoomsTab());
+            root.getTabs().addAll(createStudentTab(), createAvailabilityTab(), createStudyRoomsTab(), createBookshelfTab());
         } else if (currentUser instanceof Librarian) {
             root.getTabs().addAll(createLibrarianTab(), createAvailabilityTab());
         }
@@ -302,8 +304,6 @@ public class LibraryGUI extends Application {
         // --- STUDENT INFO ---
         Label welcomeLabel = new Label("Welcome, " + currentUser.getName() + "!");
         welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-
-        // Cast once cleanly since we know they are a Student
         Student studentUser = (Student) currentUser;
         Label infoLabel = new Label("ID: " + studentUser.getUserId() +
                 " | Major: " + studentUser.getMajor());
@@ -433,7 +433,7 @@ public class LibraryGUI extends Application {
         addLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
 
         // Using GridPane to make the form look clean and organized
-        javafx.scene.layout.GridPane addForm = new javafx.scene.layout.GridPane();
+        GridPane addForm = new GridPane();
         addForm.setHgap(10);
         addForm.setVgap(10);
 
@@ -466,6 +466,9 @@ public class LibraryGUI extends Application {
         addForm.add(new Label("Year:"), 2, 1);
         addForm.add(yearInput, 3, 1);
 
+
+
+        // Adding a new book
         Button addBtn = new Button("Add Book");
         Label messageLabel = new Label();
 
@@ -547,7 +550,10 @@ public class LibraryGUI extends Application {
         Separator sep = new Separator();
         Label updateLabel = new Label("Update Existing Inventory");
         updateLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-
+        String[] currentEditId = {null} ;
+        Button saveChangesBtn = new Button("Save Changes");
+        saveChangesBtn.setDisable(true); // Locked until they enter edit mode
+        saveChangesBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         ListView<String> catalogList = new ListView<>();
         catalogList.setPrefHeight(150);
 
@@ -558,6 +564,49 @@ public class LibraryGUI extends Application {
                 catalogList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle() + " | ISBN: " + b.getIsbn() + " (" + b.getAvailableCopies() + " available)");
             }
         };
+
+        // --- SAVE CHANGES LOGIC ---
+        saveChangesBtn.setOnAction(e -> {
+            try {
+                String id = currentEditId[0];
+                String title = titleInput.getText().trim();
+                String author = authorInput.getText().trim();
+                String category = categoryInput.getValue();
+                int copies = Integer.parseInt(copiesInput.getText().trim());
+                int year = Integer.parseInt(yearInput.getText().trim());
+
+                if (title.isEmpty() || author.isEmpty() || category == null) {
+                    messageLabel.setText("All fields must be filled!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+
+                // Push updates to the backend
+                system.updateBookDetails(id, title, author, category, copies, year);
+                system.saveSystemData();
+                loadCatalog.run(); // Refresh the list
+
+                // Reset the form
+                titleInput.clear();
+                authorInput.clear();
+                categoryInput.setValue(null);
+                copiesInput.clear();
+                yearInput.clear();
+                currentEditId[0] = null;
+                saveChangesBtn.setDisable(true);
+
+                messageLabel.setText("Successfully updated " + id + ": " + title);
+                messageLabel.setTextFill(Color.GREEN);
+
+            } catch (NumberFormatException ex) {
+                messageLabel.setText("Copies and Year must be valid numbers!");
+                messageLabel.setTextFill(Color.RED);
+            } catch (Exception ex) {
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
+            }
+        });
+
 
         tab.setOnSelectionChanged(event -> {
             if (tab.isSelected()) loadCatalog.run();
@@ -573,10 +622,11 @@ public class LibraryGUI extends Application {
 
         Button addQtyBtn = new Button("Add Copies");
         Button removeQtyBtn = new Button("Remove Copies");
+        Button editBookBtn = new Button("Edit Book");
         Button deleteBookBtn = new Button("Delete Book");
         deleteBookBtn.setStyle("-fx-background-color: #ff4c4c; -fx-text-fill: white;"); // Make it red so you don't click it by accident
 
-        updateBox.getChildren().addAll(new Label("Modify Stock:"), qtyInput, addQtyBtn, removeQtyBtn, deleteBookBtn);
+        updateBox.getChildren().addAll(new Label("Modify Stock:"), qtyInput, addQtyBtn, removeQtyBtn, editBookBtn, deleteBookBtn);
         // Logic for adding stock
         addQtyBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
@@ -643,6 +693,42 @@ public class LibraryGUI extends Application {
                 messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
                 messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
+            }
+        });
+
+        // Logic for editing a  book's information
+        editBookBtn.setOnAction(e -> {
+            String selected = catalogList.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                messageLabel.setText("Select a book to edit first!");
+                messageLabel.setTextFill(Color.RED);
+                return;
+            }
+            try {
+                // Extract the ID from the list string
+                String bookId = selected.substring(4, selected.indexOf(" |"));
+
+                // Find the actual book object in the catalog
+                for (Book b : system.getCatalog()) {
+                    if (b.getBookId().equals(bookId)) {
+                        // Populate the top form with this book's data
+                        titleInput.setText(b.getTitle());
+                        authorInput.setText(b.getAuthor());
+                        categoryInput.setValue(b.getCategory());
+                        copiesInput.setText(String.valueOf(b.getAvailableCopies()));
+                        yearInput.setText(String.valueOf(b.getPublicationYear()));
+                        // Sned a signal, so system knows we are in edit mode:
+                        currentEditId[0] = bookId;
+                        saveChangesBtn.setDisable(false);
+
+                        messageLabel.setText("Editing " + bookId + ". Make your changes in the form above.");
+                        messageLabel.setTextFill(Color.BLUE); // Blue to indicate "Edit Mode"
+                        break;
+                    }
+                }
+            } catch (Exception ex) {
+                messageLabel.setText("Error loading book data.");
                 messageLabel.setTextFill(Color.RED);
             }
         });
@@ -1047,7 +1133,69 @@ public class LibraryGUI extends Application {
         delay.setOnFinished(e -> popup.hide());
         delay.play();
     }
+    // --- THE VISUAL BOOKSHELF PORTAL ---
+    private Tab createBookshelfTab() {
+        Tab tab = new Tab("Visual Bookshelf");
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
 
+        Label titleLabel = new Label("Library Bookshelf - Click a Book to Borrow");
+        titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
+        Label messageLabel = new Label();
+
+        // The "Shelf" that wraps elements to the next row
+        FlowPane bookshelf = new FlowPane(15, 15);
+        bookshelf.setPadding(new Insets(10));
+
+        // Make it scrollable in case you add a ton of books
+        ScrollPane scrollPane = new ScrollPane(bookshelf);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(400);
+
+        // Auto-refresh when clicking the tab
+        tab.setOnSelectionChanged(e -> {
+            if (tab.isSelected()) {
+                populateShelf(bookshelf, messageLabel);
+                messageLabel.setText("");
+            }
+        });
+
+        populateShelf(bookshelf, messageLabel);
+
+        layout.getChildren().addAll(titleLabel, scrollPane, messageLabel);
+        tab.setContent(layout);
+        return tab;
+    }
+
+    // --- HELPER TO FILL THE SHELF ---
+    private void populateShelf(FlowPane bookshelf, Label messageLabel) {
+        bookshelf.getChildren().clear();
+        for (Book b : system.getCatalog()) {
+            if (b.getAvailableCopies() > 0) {
+
+                Button bookBtn = new Button(b.getTitle() + "\n\nAvailable: " + b.getAvailableCopies());
+                bookBtn.setPrefSize(120, 160); // Tall and narrow
+                bookBtn.setStyle("-fx-background-color: #f4eeb8; -fx-border-color: #8b5a2b; -fx-border-width: 2px; -fx-alignment: center; -fx-font-weight: bold; -fx-cursor: hand;");
+                bookBtn.setWrapText(true);
+
+                bookBtn.setOnAction(e -> {
+                    try {
+                        system.borrowBook(currentUser.getUserId(), b.getBookId());
+                        system.saveSystemData();
+                        messageLabel.setText("Success! You borrowed: " + b.getTitle());
+                        messageLabel.setTextFill(Color.GREEN);
+
+                        // Redraw the shelf so the copy count drops immediately
+                        populateShelf(bookshelf, messageLabel);
+                    } catch (Exception ex) {
+                        messageLabel.setText(ex.getMessage());
+                        messageLabel.setTextFill(Color.RED);
+                    }
+                });
+                bookshelf.getChildren().add(bookBtn);
+            }
+        }
+    }
     public static void main(String[] args) {
         launch(args);
     }

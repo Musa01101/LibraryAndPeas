@@ -3,7 +3,9 @@ package com.library.services;
 import com.library.models.*;
 import com.library.exceptions.*;
 import java.util.ArrayList;
-
+//Add edition for the books for librarian and really more o teh notification like oh you browsed this book
+// or like oh this book was returned, and could I try adding confirmation and stuff?
+// Also make the bookshelf more beautifully
 public class LibrarySystem {
     private ArrayList<Book> catalog;
     private ArrayList<Student> registeredStudents;
@@ -45,7 +47,7 @@ public class LibrarySystem {
         }
     }
 
-    //getter methods for our "data base"
+    //getter methods for our "database"
     public ArrayList<Book> getCatalog() {
         return this.catalog;
     }
@@ -128,7 +130,7 @@ public class LibrarySystem {
 
     //  The Borrowing of Books
     public void borrowBook(String studentId, String bookId) throws Exception {
-        //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
+        //Step 1 and 2: Search for bookId and StudentId in arrays using methods
         Student foundStudent = findStudentById(studentId);
         Book foundBook = findBookById(bookId);
         // Step 3: Check if book.getAvailableCopies() > 0
@@ -143,13 +145,13 @@ public class LibrarySystem {
         foundBook.setAvailableCopies(foundBook.getAvailableCopies() - 1);
         foundStudent.borrowBook(foundBook);
         System.out.println("Transaction Successful: " + foundBook.getTitle() + " borrowed by " + foundStudent.getName());
-        // Step 5: If no, throw  BookUnavailableException, when suhali gives the package
+        // Step 5: If no, throw  BookUnavailableException, when Suhasini gives the package
 
     }
 
     // The Return of Books
     public void returnBook(String studentId, String bookId) throws Exception {
-        //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
+        //Step 1 and 2: Search for bookId and StudentId in arrays using methods
         Student foundStudentR = findStudentById(studentId);
         Book foundBookR = findBookById(bookId);
         //Step 3: Does the student own the book?
@@ -174,6 +176,7 @@ public class LibrarySystem {
             // A student was waiting! Auto-transfer the book to them
             nextInLine.removeReservedBook(foundBookR); // Clear their reservation
             nextInLine.borrowBook(foundBookR);       // Hand them the book
+            nextInLine.setHasPendingNotification(true); // Will truer the pop-up
             System.out.println("Smart Update: '" + foundBookR.getTitle() + "' was automatically assigned to waiting student: " + nextInLine.getName());
         } else {
             // Nobody is waiting, so put it back on the open shelf
@@ -185,7 +188,7 @@ public class LibrarySystem {
 
     //The Reservation of Books
     public void reserveBook(String studentId, String bookId) throws Exception {
-        //Step 1 and 2: Search for bookId and StucdentId in arrays using methods
+        //Step 1 and 2: Search for bookId and StudentId in arrays using methods
         Student foundStudentRes = findStudentById(studentId);
         Book foundBookRes = findBookById(bookId);
 
@@ -214,8 +217,20 @@ public class LibrarySystem {
         System.out.println("Reservation Successful: '" + foundBookRes.getTitle() + "' has been reserved for " + foundStudentRes.getName());
     }
 
-    //  Manual Reservation Cancellation
+    // Update existing book details
+    public void updateBookDetails(String bookId, String newTitle, String newAuthor, String newCategory, int newCopies, int newYear) throws Exception {
+        Book targetBook = findBookById(bookId);
 
+        targetBook.setTitle(newTitle);
+        targetBook.setAuthor(newAuthor);
+        targetBook.setCategory(newCategory);
+        targetBook.setAvailableCopies(newCopies);
+        targetBook.setPublicationYear(newYear);
+
+        System.out.println("System Update: " + targetBook.getBookId() + " has been successfully updated.");
+    }
+
+    //  Manual Reservation Cancellation
     public void cancelReservation(String studentId, String bookId) throws Exception {
         // Search for book and student
         Student foundStudentCan = findStudentById(studentId);
@@ -231,7 +246,7 @@ public class LibrarySystem {
 
         System.out.println("Reservation Cancelled: '" + foundBookCan.getTitle() + "' removed from " + foundStudentCan.getName() + "'s waitlist.");
     }
-    // clear the transactions pdf, for cases when librirain adds copies of an empty book
+    // clear the transactions PDF, for cases when librarian adds copies of an empty book
     public void clearReservations(String bookId) {
         Book book = null;
         try { book = findBookById(bookId); } catch (Exception e) { return; }
