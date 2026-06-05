@@ -287,6 +287,17 @@ public class LibraryGUI extends Application {
                 system.saveSystemData();
             }
         }
+        else if (currentUser instanceof Librarian) {
+            if(currentUser.isReceiveReservationNotifs()) {
+                int outOfStockCount = 0;
+                for(Book b : system.getCatalog()) {
+                    if (b.getAvailableCopies() == 0) outOfStockCount++;
+                }
+                if(outOfStockCount > 0) {
+                    showNotification("Inventory Alert: " + outOfStockCount + " book(s) are out of stock!", stage);
+                }
+            }
+        }
         // Put the top bar above the tabs
         mainLayout.setTop(topBar);
         mainLayout.setCenter(root);
@@ -522,6 +533,12 @@ public class LibraryGUI extends Application {
                 int year = Integer.parseInt(yearInput.getText());
                 int currentYear = java.time.Year.now().getValue();
 
+                if (copies < 0) { // prebent coppies<0
+                    messageLabel.setText("Copies cannot be negative!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+
                 if (year > currentYear || year < 1000) {
                     messageLabel.setText("Invalid year!"); messageLabel.setTextFill(Color.RED); return;
                 }
@@ -562,6 +579,12 @@ public class LibraryGUI extends Application {
                 String category = categoryInput.getValue();
                 int copies = Integer.parseInt(copiesInput.getText().trim());
                 int year = Integer.parseInt(yearInput.getText().trim());
+
+                if (copies < 0) { // prebent coppies<0
+                    messageLabel.setText("Copies cannot be negative!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
 
                 if (title.isEmpty() || author.isEmpty() || category == null) {
                     messageLabel.setText("All fields must be filled!"); messageLabel.setTextFill(Color.RED); return;
@@ -630,6 +653,12 @@ public class LibraryGUI extends Application {
             }
             try {
                 int qty = Integer.parseInt(qtyInput.getText());
+                if (qty < 0) { // prebent coppies<0
+                    messageLabel.setText("Copies cannot be negative!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+
                 String bookId = selected.substring(4, selected.indexOf(" |"));
                 for (Book b : system.getCatalog()) {
                     if (b.getBookId().equals(bookId)) {
@@ -656,6 +685,13 @@ public class LibraryGUI extends Application {
             }
             try {
                 int qty = Integer.parseInt(qtyInput.getText());
+
+                if (qty <= 0) { // prevent from writing negative copies removing(e.g 0-(-6)=6, NO-NO)
+                    messageLabel.setText("Please enter a positive number to remove!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+
                 String bookId = selected.substring(4, selected.indexOf(" |"));
                 for (Book b : system.getCatalog()) {
                     if (b.getBookId().equals(bookId)) {
@@ -755,6 +791,7 @@ public class LibraryGUI extends Application {
         displayList.setPrefHeight(250);
         Label messageLabel = new Label();
 
+        //actually load it
         Runnable loadCatalog = () -> {
             displayList.getItems().clear();
 
@@ -767,8 +804,6 @@ public class LibraryGUI extends Application {
                 displayList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle() + " | ISBN: " + b.getIsbn() + " " + status);
             }
         };
-
-        // The critical lines that were missing to make it actually load!
         tab.setOnSelectionChanged(e -> {
             if (tab.isSelected()) loadCatalog.run();
         });
@@ -927,6 +962,11 @@ public class LibraryGUI extends Application {
                 }
                 try {
                     int qty = Integer.parseInt(qtyInput.getText());
+                    if (qty < 0) {
+                        messageLabel.setText("Copies cannot be negative!");
+                        messageLabel.setTextFill(Color.RED);
+                        return;
+                    }
                     String bookId = selected.substring(4, selected.indexOf(" |"));
 
                     for (Book b : system.getCatalog()) {
@@ -953,6 +993,7 @@ public class LibraryGUI extends Application {
             // --- REMOVE COPIES LOGIC ---
             removeQtyBtn.setOnAction(e -> {
                 String selected = displayList.getSelectionModel().getSelectedItem();
+
                 if (selected == null || qtyInput.getText().isEmpty()) {
                     messageLabel.setText("Select a book and enter a quantity!");
                     messageLabel.setTextFill(Color.RED);
@@ -960,6 +1001,12 @@ public class LibraryGUI extends Application {
                 }
                 try {
                     int qty = Integer.parseInt(qtyInput.getText());
+                    if (qty <= 0) {
+                        messageLabel.setText("Please enter a positive number to remove!");
+                        messageLabel.setTextFill(Color.RED);
+                        return;
+                    }
+
                     String bookId = selected.substring(4, selected.indexOf(" |"));
 
                     for (Book b : system.getCatalog()) {
