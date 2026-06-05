@@ -92,7 +92,8 @@ public class FileManager {
                         student.getUserId() + "|" +
                         student.getEmail() + "|" +
                         student.getPassword() + "|" +
-                        student.isReceiveNotifications());
+                        student.isReceiveDueDateNotifs() + "|" +
+                        student.isReceiveReservationNotifs());
                 System.out.println("Success: " + student.getName() + " has been saved!");
             }
             System.out.println("Finished writing to " + STUDENT_FILE);
@@ -111,13 +112,19 @@ public class FileManager {
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                // Remember to use double backslashes to escape the pipe symbol!
                 String[] data = scanner.nextLine().split("\\|");
                 Student loadedStudent = new Student(data[0], data[1], data[2], data[3], data[4]);
-                // Safety check for older saves that only have 5 fields
-                if (data.length > 5) {
-                    loadedStudent.setReceiveNotifications(Boolean.parseBoolean(data[5]));
+
+                // Safety check: Handles both old saves (1 boolean) and new saves (2 booleans)
+                if (data.length == 6) {
+                    boolean oldSetting = Boolean.parseBoolean(data[5]);
+                    loadedStudent.setReceiveDueDateNotifs(oldSetting);
+                    loadedStudent.setReceiveReservationNotifs(oldSetting);
+                } else if (data.length > 6) {
+                    loadedStudent.setReceiveDueDateNotifs(Boolean.parseBoolean(data[5]));
+                    loadedStudent.setReceiveReservationNotifs(Boolean.parseBoolean(data[6]));
                 }
+
                 loadedStudents.add(loadedStudent);
             }
             System.out.println("Success: Students loaded from " + STUDENT_FILE);
@@ -221,13 +228,16 @@ public class FileManager {
                 if (!managedIds.isEmpty()) {
                     managedIds.setLength(managedIds.length() - 1);
                 }
+                // Safe spacer trick to prevent empty-string crashes
+                String mIds = managedIds.isEmpty() ? "NONE" : managedIds.toString();
 
                 out.println(name + "|"
                         + id + "|"
                         + email + "|"
                         + password + "|"
                         + staffNumber + "|"
-                        + managedIds);
+                        + mIds + "|"
+                        + staff.isReceiveReservationNotifs());
                 System.out.println("Success: " + staff.getName() + " has been saved!");
             }
             System.out.println("Finished writing to " + STAFF_FILE);
@@ -247,12 +257,14 @@ public class FileManager {
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
+                if(line.trim().isEmpty()) continue; // Prevent first-day errors, if the file was empty
                 String[] data = line.split("\\|");
                 String name = data[0];
                 String userId = data[1];
                 String email = data[2];
                 String password = data[3];
                 String staffNumber = data[4];
+
 
                 Librarian rebuiltLibrarian = new Librarian(name, userId, email, password, staffNumber);
                 // The Linking Trick for Managed Books the same as per student method
@@ -266,6 +278,11 @@ public class FileManager {
                             }
                         }
                     }
+                }
+
+                // --- Load the stock alert preference if it exists ---
+                if (data.length > 6) {
+                    rebuiltLibrarian.setReceiveReservationNotifs(Boolean.parseBoolean(data[6]));
                 }
 
                 loadedLibrarian.add(rebuiltLibrarian);

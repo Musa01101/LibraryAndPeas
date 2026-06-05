@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Update the book info">
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Update the book info(DONE !)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/LibraryGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TMP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TMP.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/models/Librarian.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Librarian.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/models/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Student.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -295,7 +300,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780582402280</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Update the book info(DONE !)">
+      <option name="closed" value="true" />
+      <created>1780583139797</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1780583139797</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -316,7 +329,8 @@
     <MESSAGE value="wait" />
     <MESSAGE value="Are we done?" />
     <MESSAGE value="Update the book info" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update the book info" />
+    <MESSAGE value="Update the book info(DONE !)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update the book info(DONE !)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -281,9 +281,9 @@ public class LibraryGUI extends Application {
         // --- CHECK FOR PENDING NOTIFICATIONS ---
         if (currentUser instanceof Student) {
             Student studentUser = (Student) currentUser;
-            if (studentUser.hasPendingNotification()) {
+            if (studentUser.hasPendingNotification() && studentUser.isReceiveReservationNotifs()) {
                 showNotification("Great news! Your reserved book is now available and has been added to your account.", stage);
-                studentUser.setHasPendingNotification(false); // Turn it off so it doesn't spam them
+                studentUser.setHasPendingNotification(false);
                 system.saveSystemData();
             }
         }
@@ -304,9 +304,10 @@ public class LibraryGUI extends Application {
         // --- STUDENT INFO ---
         Label welcomeLabel = new Label("Welcome, " + currentUser.getName() + "!");
         welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        // Cast once cleanly since we know they are a Student
         Student studentUser = (Student) currentUser;
-        Label infoLabel = new Label("ID: " + studentUser.getUserId() +
-                " | Major: " + studentUser.getMajor());
+        Label infoLabel = new Label("ID: " + studentUser.getUserId() + " | Major: " + studentUser.getMajor());
 
         Label messageLabel = new Label();
 
@@ -381,8 +382,6 @@ public class LibraryGUI extends Application {
             }
             try {
                 String bookId = selected.substring(4, selected.indexOf(" |"));
-
-                // Assuming your cancelReservation method is still in LibrarySystem!
                 system.cancelReservation(studentUser.getUserId(), bookId);
                 system.saveSystemData();
                 loadUserData.run();
@@ -394,29 +393,38 @@ public class LibraryGUI extends Application {
             }
         });
 
-        // --- NOTIFICATION TOGGLE ---
-        CheckBox notifToggle = new CheckBox("Enable Waitlist & System Notifications");
-        notifToggle.setSelected(studentUser.isReceiveNotifications());
+        // --- NOTIFICATION PREFERENCES UI ---
+        VBox notifBox = new VBox(5);
+        Label settingsLabel = new Label("Notification Preferences:");
+        settingsLabel.setStyle("-fx-font-weight: bold;");
 
-        notifToggle.setOnAction(e -> {
-            boolean isEnabled = notifToggle.isSelected();
-            studentUser.setReceiveNotifications(true); // Temp trick so popup bypasses check
-            if (isEnabled) {
-                showNotification("Notifications enabled!", (Stage) tab.getTabPane().getScene().getWindow());
-            } else {
-                showNotification("Notifications disabled!", (Stage) tab.getTabPane().getScene().getWindow());
-            }
-            studentUser.setReceiveNotifications(isEnabled);
+        CheckBox reserveToggle = new CheckBox("Enable Waitlist Notifications");
+        reserveToggle.setSelected(studentUser.isReceiveReservationNotifs());
+
+        CheckBox dueToggle = new CheckBox("Enable Due Date Reminders");
+        dueToggle.setSelected(studentUser.isReceiveDueDateNotifs());
+
+        reserveToggle.setOnAction(e -> {
+            studentUser.setReceiveReservationNotifs(reserveToggle.isSelected());
             system.saveSystemData();
+            showNotification("Waitlist notifications " + (reserveToggle.isSelected() ? "enabled!" : "disabled!"), (Stage) tab.getTabPane().getScene().getWindow());
         });
+
+        dueToggle.setOnAction(e -> {
+            studentUser.setReceiveDueDateNotifs(dueToggle.isSelected());
+            system.saveSystemData();
+            showNotification("Due date reminders " + (dueToggle.isSelected() ? "enabled!" : "disabled!"), (Stage) tab.getTabPane().getScene().getWindow());
+        });
+
+        notifBox.getChildren().addAll(settingsLabel, reserveToggle, dueToggle);
 
         tab.setOnSelectionChanged(e -> {
             if (tab.isSelected()) loadUserData.run();
         });
         loadUserData.run();
 
-        // Add everything to the layout
-        layout.getChildren().addAll(welcomeLabel, infoLabel, listsBox, messageLabel, new Separator(), notifToggle);
+        // Add everything to the layout, making sure listsBox is included!
+        layout.getChildren().addAll(welcomeLabel, infoLabel, listsBox, messageLabel, new Separator(), notifBox);
         tab.setContent(layout);
 
         return tab;
@@ -470,8 +478,22 @@ public class LibraryGUI extends Application {
 
         Runnable loadCatalog = () -> {
             catalogList.getItems().clear();
+            int outOfStockCount = 0;
+
             for (Book b : system.getCatalog()) {
-                catalogList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle() + " | ISBN: " + b.getIsbn() + " (" + b.getAvailableCopies() + " available)");
+                if (b.getAvailableCopies() == 0) outOfStockCount++;
+
+                // Ownership tag logic
+                String ownershipTag = "";
+                if (((Librarian) currentUser).getManagedBooks().contains(b)) {
+                    ownershipTag = " [★ YOUR BOOK]";
+                }
+
+                catalogList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle() + ownershipTag + " | ISBN: " + b.getIsbn() + " (" + b.getAvailableCopies() + " available)");
+            }
+
+            if (outOfStockCount > 0 && currentUser.isReceiveReservationNotifs() && tab.getTabPane() != null) {
+                showNotification("Inventory Alert: " + outOfStockCount + " book(s) are out of stock!", (Stage) tab.getTabPane().getScene().getWindow());
             }
         };
         tab.setOnSelectionChanged(event -> { if (tab.isSelected()) loadCatalog.run(); });
@@ -484,7 +506,7 @@ public class LibraryGUI extends Application {
 
         Button addQtyBtn = new Button("Add Copies");
         Button removeQtyBtn = new Button("Remove Copies");
-        Button editBookBtn = new Button("Edit Book"); // RIGHT HERE!
+        Button editBookBtn = new Button("Edit Book");
         Button deleteBookBtn = new Button("Delete Book");
         deleteBookBtn.setStyle("-fx-background-color: #ff4c4c; -fx-text-fill: white;");
 
@@ -552,7 +574,7 @@ public class LibraryGUI extends Application {
                 titleInput.clear(); authorInput.clear(); categoryInput.setValue(null); copiesInput.clear(); yearInput.clear();
                 currentEditId[0] = null;
                 saveChangesBtn.setDisable(true);
-                addBtn.setDisable(false); // Turn add button back on
+                addBtn.setDisable(false);
 
                 messageLabel.setText("Successfully updated " + id + ": " + title); messageLabel.setTextFill(Color.GREEN);
             } catch (NumberFormatException ex) {
@@ -569,22 +591,32 @@ public class LibraryGUI extends Application {
             }
             try {
                 String bookId = selected.substring(4, selected.indexOf(" |"));
+
+                Book target = null;
                 for (Book b : system.getCatalog()) {
-                    if (b.getBookId().equals(bookId)) {
-                        titleInput.setText(b.getTitle());
-                        authorInput.setText(b.getAuthor());
-                        categoryInput.setValue(b.getCategory());
-                        copiesInput.setText(String.valueOf(b.getAvailableCopies()));
-                        yearInput.setText(String.valueOf(b.getPublicationYear()));
+                    if (b.getBookId().equals(bookId)) { target = b; break; }
+                }
 
-                        currentEditId[0] = bookId;
-                        saveChangesBtn.setDisable(false);
-                        addBtn.setDisable(true); // Lock the add button so you don't accidentally create a duplicate
+                // Security Check for Editing
+                if (target != null && !((Librarian) currentUser).getManagedBooks().contains(target)) {
+                    messageLabel.setText("Access Denied: You can only edit books you added!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
 
-                        messageLabel.setText("Editing " + bookId + ". Make your changes in the form above.");
-                        messageLabel.setTextFill(Color.BLUE);
-                        break;
-                    }
+                if (target != null) {
+                    titleInput.setText(target.getTitle());
+                    authorInput.setText(target.getAuthor());
+                    categoryInput.setValue(target.getCategory());
+                    copiesInput.setText(String.valueOf(target.getAvailableCopies()));
+                    yearInput.setText(String.valueOf(target.getPublicationYear()));
+
+                    currentEditId[0] = bookId;
+                    saveChangesBtn.setDisable(false);
+                    addBtn.setDisable(true);
+
+                    messageLabel.setText("Editing " + bookId + ". Make your changes in the form above.");
+                    messageLabel.setTextFill(Color.BLUE);
                 }
             } catch (Exception ex) {
                 messageLabel.setText("Error loading book data."); messageLabel.setTextFill(Color.RED);
@@ -652,6 +684,19 @@ public class LibraryGUI extends Application {
             }
             try {
                 String bookId = selected.substring(4, selected.indexOf(" |"));
+
+                Book target = null;
+                for (Book b : system.getCatalog()) {
+                    if (b.getBookId().equals(bookId)) { target = b; break; }
+                }
+
+                // Security Check for Deletion
+                if (target != null && !((Librarian) currentUser).getManagedBooks().contains(target)) {
+                    messageLabel.setText("Access Denied: You can only delete books you added!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
+                }
+
                 system.removeBookFromSystem(bookId);
                 system.saveSystemData();
                 loadCatalog.run();
@@ -661,7 +706,23 @@ public class LibraryGUI extends Application {
             }
         });
 
-        layout.getChildren().addAll(addLabel, addForm, topButtonsBox, sep, updateLabel, catalogList, updateBox, messageLabel);
+        // --- NOTIFICATION PREFERENCES UI ---
+        VBox notifBox = new VBox(5);
+        Label settingsLabel = new Label("Librarian Alerts:");
+        settingsLabel.setStyle("-fx-font-weight: bold;");
+
+        CheckBox stockToggle = new CheckBox("Enable Low Stock Alerts");
+        stockToggle.setSelected(currentUser.isReceiveReservationNotifs());
+
+        stockToggle.setOnAction(e -> {
+            currentUser.setReceiveReservationNotifs(stockToggle.isSelected());
+            system.saveSystemData();
+            showNotification("Low Stock Alerts " + (stockToggle.isSelected() ? "enabled!" : "disabled!"), (Stage) tab.getTabPane().getScene().getWindow());
+        });
+
+        notifBox.getChildren().addAll(settingsLabel, stockToggle);
+
+        layout.getChildren().addAll(addLabel, addForm, topButtonsBox, sep, updateLabel, catalogList, updateBox, messageLabel, new Separator(), notifBox);
         tab.setContent(layout);
         return tab;
     }
@@ -689,7 +750,7 @@ public class LibraryGUI extends Application {
         Button clearBtn = new Button("View All");
         searchBox.getChildren().addAll(new Label("Search:"), searchInput, filterBox, availableOnlyBox, searchBtn, clearBtn);
 
-// --- CATALOG LIST ---
+        // --- CATALOG LIST ---
         ListView<String> displayList = new ListView<>();
         displayList.setPrefHeight(250);
         Label messageLabel = new Label();
@@ -1014,11 +1075,6 @@ public class LibraryGUI extends Application {
 
     // --- THE CUSTOM NOTIFICATION SYSTEM ---
     private void showNotification(String message, Stage stage) {
-        // Only show if the user has notifications enabled
-        if (currentUser != null && !currentUser.isReceiveNotifications()) {
-            return;
-        }
-
         Label toast = new Label(message);
         toast.setStyle("-fx-background-color: #333; -fx-text-fill: white; -fx-padding: 10px; -fx-background-radius: 5px;");
         Popup popup = new Popup();
@@ -1033,6 +1089,7 @@ public class LibraryGUI extends Application {
         delay.setOnFinished(e -> popup.hide());
         delay.play();
     }
+
     // --- THE VISUAL BOOKSHELF PORTAL ---
     private Tab createBookshelfTab() {
         Tab tab = new Tab("Visual Bookshelf");

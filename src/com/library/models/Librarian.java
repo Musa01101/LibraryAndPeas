@@ -14,11 +14,7 @@ public class Librarian extends User {
         this.managedBooks = new ArrayList<>();
     }
 
-    @Override
-    public boolean isEligibleForService() {
-        // A librarian is eligible to manage the system if they have a valid ID and staff number
-        return getUserId() != null && !getUserId().isEmpty() && staffNumber != null && !staffNumber.equals("TEMP-STAFF");
-    }
+
 
     public String getStaffNumber() {
         return staffNumber;

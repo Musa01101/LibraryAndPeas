@@ -15,11 +15,6 @@ public class Student extends User {
         this.reservedBooks = new ArrayList<Book>();
     }
 
-    @Override
-    public boolean isEligibleForService() {
-        return getUserId() != null && !getUserId().isEmpty() && getMajor() != null && !getMajor().equals("Undeclared");
-    }
-
     public boolean hasPendingNotification() {return hasPendingNotification;}
     public void setHasPendingNotification(boolean hasPendingNotification) {this.hasPendingNotification = hasPendingNotification;}
 

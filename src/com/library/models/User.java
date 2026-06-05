@@ -5,24 +5,33 @@ public abstract class User {
     private String userId;
     private String email;
     private String password;
-    private boolean receiveNotifications;
+    private boolean receiveDueDateNotifs;
+    private boolean receiveReservationNotifs;
 
     public User(String name, String userId, String email, String password) {
         this.name = name;
         setUserId(userId);
         setEmail(email);
         setPassword(password);
-        this.receiveNotifications = true;
+        this.receiveDueDateNotifs = true;
+        this.receiveReservationNotifs = true;
     }
 
-    public abstract boolean isEligibleForService();
 
-    public boolean isReceiveNotifications() {
-        return receiveNotifications;
+    public boolean isReceiveDueDateNotifs() {
+        return receiveDueDateNotifs;
     }
 
-    public void setReceiveNotifications(boolean receiveNotifications) {
-        this.receiveNotifications = receiveNotifications;
+    public void setReceiveDueDateNotifs(boolean receiveDueDateNotifs) {
+        this.receiveDueDateNotifs = receiveDueDateNotifs;
+    }
+
+    public boolean isReceiveReservationNotifs() {
+        return receiveReservationNotifs;
+    }
+
+    public void setReceiveReservationNotifs(boolean receiveReservationNotifs) {
+        this.receiveReservationNotifs = receiveReservationNotifs;
     }
 
     public String getName() {

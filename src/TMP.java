@@ -34,7 +34,7 @@ public class TMP {
 
         System.out.println("--- Setup Verification ---");
         System.out.println("Librarian managed books count: " + librarian.getManagedBooks().size());
-        System.out.println("Librarianw managed books count: " + librarian2.getManagedBooks().size());
+        System.out.println("Librarian managed books count: " + librarian2.getManagedBooks().size());
         System.out.println("Catalog size: " + library.getCatalog().size() + " books registered.\n");
 
         // 4. Test Polymorphic User Lookup Engine
