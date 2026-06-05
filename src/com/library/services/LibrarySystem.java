@@ -247,7 +247,7 @@ public class LibrarySystem {
         System.out.println("Reservation Cancelled: '" + foundBookCan.getTitle() + "' removed from " + foundStudentCan.getName() + "'s waitlist.");
     }
     // clear the transactions PDF, for cases when librarian adds copies of an empty book
-    public void clearReservations(String bookId) {
+    public void clearReservations(String bookId) throws Exception {
         Book book = null;
         try { book = findBookById(bookId); } catch (Exception e) { return; }
 

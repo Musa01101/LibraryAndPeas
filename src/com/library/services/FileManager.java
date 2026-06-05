@@ -66,7 +66,7 @@ public class FileManager {
     // I didn't do the same helper method for other methods,as making them would be too messy
     // as they implement ArrayList and call for catalog and the line;
     // It works perfectly fine as for now !:)
-    private static Book getBook(String line) {
+    private static Book getBook(String line) throws Exception{
         String[] data = line.split("\\|");
         // Rebuild the Book object
         // Note to self: Make sure the order here matches the order I saved them in Part 1!

@@ -1,4 +1,5 @@
 import com.library.models.*;
+import com.library.exceptions.*;
 import com.library.services.LibrarySystem;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -531,17 +532,6 @@ public class LibraryGUI extends Application {
             try {
                 int copies = Integer.parseInt(copiesInput.getText());
                 int year = Integer.parseInt(yearInput.getText());
-                int currentYear = java.time.Year.now().getValue();
-
-                if (copies < 0) { // prebent coppies<0
-                    messageLabel.setText("Copies cannot be negative!");
-                    messageLabel.setTextFill(Color.RED);
-                    return;
-                }
-
-                if (year > currentYear || year < 1000) {
-                    messageLabel.setText("Invalid year!"); messageLabel.setTextFill(Color.RED); return;
-                }
 
                 for (Book b : system.getCatalog()) {
                     if (b.getTitle().equalsIgnoreCase(titleInput.getText().trim()) && b.getAuthor().equalsIgnoreCase(authorInput.getText().trim())) {
@@ -568,6 +558,8 @@ public class LibraryGUI extends Application {
                 titleInput.clear(); authorInput.clear(); copiesInput.clear(); yearInput.clear(); categoryInput.setValue(null);
             } catch (NumberFormatException ex) {
                 messageLabel.setText("Copies and Year must be actual numbers!"); messageLabel.setTextFill(Color.RED);
+            } catch (InvalidBookDataException ex) {
+                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED); // Catches your custom error!
             }
         });
 
