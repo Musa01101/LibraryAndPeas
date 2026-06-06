@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="YUPP I HAD FEW ERRORS WITH NEGGATIVE COPIES AND ADD AND REMOVE QTY FOR LIBRARIN TAB AND AVIABILITY TAB">
-      <change afterPath="$PROJECT_DIR$/src/com/library/models/BorrowedBook.java" afterDir="false" />
+    <list default="true" id="f1b9ff62-99de-4781-94ad-ee08484b2cf2" name="Changes" comment="Added iverdue nottifications">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/LibraryGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LibraryGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Book.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/models/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/models/Student.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/library/services/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/FileManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/library/services/LibrarySystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -332,7 +328,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780652653279</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Added iverdue nottifications">
+      <option name="closed" value="true" />
+      <created>1780736955678</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1780736955678</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -356,6 +360,7 @@
     <MESSAGE value="Update the book info(DONE !)" />
     <MESSAGE value="OMG THIS IS SO COOL, MANAGED BOOK ARE FINALLY USEFUL" />
     <MESSAGE value="YUPP I HAD FEW ERRORS WITH NEGGATIVE COPIES AND ADD AND REMOVE QTY FOR LIBRARIN TAB AND AVIABILITY TAB" />
-    <option name="LAST_COMMIT_MESSAGE" value="YUPP I HAD FEW ERRORS WITH NEGGATIVE COPIES AND ADD AND REMOVE QTY FOR LIBRARIN TAB AND AVIABILITY TAB" />
+    <MESSAGE value="Added iverdue nottifications" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added iverdue nottifications" />
   </component>
 </project>

@@ -289,7 +289,7 @@ public class LibraryGUI extends Application {
                 system.saveSystemData();
             }
             //Due date notifications
-            if(studentUser.hasPendingNotification() && studentUser.isReceiveDueDateNotifs()){
+            if( studentUser.isReceiveDueDateNotifs()){
                 int overdueCount = 0;
                 for (BorrowedBook bb : studentUser.getBorrowedBooks()) {
                     if (bb.isOverdue()) {

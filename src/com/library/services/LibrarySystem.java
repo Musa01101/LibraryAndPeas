@@ -122,6 +122,12 @@ public class LibrarySystem {
         //Step 1 and 2: Search for bookId and StudentId in arrays using helper methods down bellow
         Student foundStudent = findStudentById(studentId);
         Book foundBook = findBookById(bookId);
+        // Block action if they have overdue books
+        for (BorrowedBook bb : foundStudent.getBorrowedBooks()) {
+            if (bb.isOverdue()) {
+                throw new Exception("Account restricted: You must return your overdue books first!");
+            }
+        }
         // Step 3: Check if book.getAvailableCopies() > 0 and Check the Borrowing Cap
         if (foundBook.getAvailableCopies() <= 0) {
             throw new BookUnavailableException(foundBook.getTitle(), true);
@@ -176,7 +182,12 @@ public class LibrarySystem {
         //Step 1 and 2: Search for bookId and StudentId in arrays using methods
         Student foundStudentRes = findStudentById(studentId);
         Book foundBookRes = findBookById(bookId);
-
+        // Block action if they have overdue books
+        for (BorrowedBook bb : foundStudentRes.getBorrowedBooks()) {
+            if (bb.isOverdue()) {
+                throw new Exception("Account restricted: You must return your overdue books first!");
+            }
+        }
         // Step 3: Verify the Book is actually out of stock
         if (foundBookRes.getAvailableCopies() > 0) {
             throw new ReservationLimitException("Cannot reserve an available book.");
@@ -283,7 +294,7 @@ public class LibrarySystem {
     }
 
     //  My Helper Methods for studentId and bookId and UserId, just in case if
-    //  I didn't want to elaborate, whether a student or staff is in front? Which I didn't use in the final version, but it's just in case
+    //  I didn't want to elaborate, whether a student or staff is in front? Which I didn't use in the final version, but it's just in caseLL
     private Student findStudentById(String studentId) throws Exception {
         for (Student student : registeredStudents) {
             if (student.getUserId().equals(studentId)) {
