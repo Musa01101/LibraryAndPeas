@@ -38,8 +38,8 @@ public class FileManager {
         }
     }
 
-        //Loading the Books method
-        public ArrayList<Book> loadBooks () throws Exception {
+    //Loading the Books method
+    public ArrayList<Book> loadBooks () throws Exception {
             ArrayList<Book> loadedCatalog = new ArrayList<>();
             File file = new File(BOOKS_FILE);
             // Safety Check: If it's the very first time the exe is run, the file won't exist yet.
@@ -61,15 +61,14 @@ public class FileManager {
             return loadedCatalog;
         }
 
-
     //helper method;
     // I didn't do the same helper method for other methods,as making them would be too messy
     // as they implement ArrayList and call for catalog and the line;
     // It works perfectly fine as for now !:)
     private static Book getBook(String line) throws Exception{
-        String[] data = line.split("\\|");
+        String[] data = line.split("\\|");//use | for everything except for transaction.txt, in case if the book name contains ","
         // Rebuild the Book object
-        // Note to self: Make sure the order here matches the order I saved them in Part 1!
+        // Note to self: Make sure the order here matches the order
         String id = data[0];
         String title = data[1];
         String author = data[2];
@@ -138,8 +137,8 @@ public class FileManager {
     public void saveTransactions(ArrayList<Student> students, ArrayList<StudyRoom> rooms) throws Exception {
         try (PrintWriter out = new PrintWriter(TRANSACTIONS_FILE)) {
             for (Student student : students) {
-                for (Book book : student.getBorrowedBooks()) {
-                    out.println(student.getUserId() + "," + book.getBookId() + ",BORROWED");
+                for (BorrowedBook book : student.getBorrowedBooks()) {
+                    out.println(student.getUserId() + "," + book.getBook().getBookId() + ",BORROWED,"+book.getDueDate().toString());
                 }
                 for (Book book : student.getReservedBooks()) {
                     out.println(student.getUserId() + "," + book.getBookId() + ",RESERVED");
@@ -199,10 +198,23 @@ public class FileManager {
                         break;
                     }
                 }
-
                 if (foundStudent != null && foundBook != null) {
-                    if (status.equals("BORROWED")) foundStudent.borrowBook(foundBook);
-                    else if (status.equals("RESERVED")) foundStudent.addReserveBook(foundBook);
+                    //   DUE DATE LOGIC
+                    if (status.equals("BORROWED")) {
+                        // Check if we have a 4th column (the due date) saved in our txt file
+                        if (data.length > 3) {
+                            java.time.LocalDate savedDate = java.time.LocalDate.parse(data[3]);
+                            // Wrap the book with its saved date and add it to the student's list
+                            foundStudent.getBorrowedBooks().add(new BorrowedBook(foundBook, savedDate));
+                        } else {
+                            // Safe fallback: If it's an old save file without dates, just borrow it normally
+                            foundStudent.borrowBook(foundBook);
+                        }
+                    }
+                    else if (status.equals("RESERVED")) {
+                        // Reservations haven't changed, they still just hold the normal Book object
+                        foundStudent.addReserveBook(foundBook);
+                    }
                 }
             }
             System.out.println("Success: Transactions loaded from " + TRANSACTIONS_FILE);

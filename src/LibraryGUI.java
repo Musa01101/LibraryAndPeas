@@ -282,11 +282,26 @@ public class LibraryGUI extends Application {
         // --- CHECK FOR PENDING NOTIFICATIONS ---
         if (currentUser instanceof Student) {
             Student studentUser = (Student) currentUser;
+            //Reservation Notifications
             if (studentUser.hasPendingNotification() && studentUser.isReceiveReservationNotifs()) {
                 showNotification("Great news! Your reserved book is now available and has been added to your account.", stage);
                 studentUser.setHasPendingNotification(false);
                 system.saveSystemData();
             }
+            //Due date notifications
+            if(studentUser.hasPendingNotification() && studentUser.isReceiveDueDateNotifs()){
+                int overdueCount = 0;
+                for (BorrowedBook bb : studentUser.getBorrowedBooks()) {
+                    if (bb.isOverdue()) {
+                        overdueCount++;
+                    }
+                }
+                if (overdueCount > 0) {
+                    // Using the existing  notification system!
+                    showNotification("Alert: You have " + overdueCount + " overdue book(s) to return!", stage);
+                }
+            }
+
         }
         else if (currentUser instanceof Librarian) {
             if(currentUser.isReceiveReservationNotifs()) {
@@ -349,8 +364,8 @@ public class LibraryGUI extends Application {
             borrowedList.getItems().clear();
             reservedList.getItems().clear();
 
-            for (Book b : studentUser.getBorrowedBooks()) {
-                borrowedList.getItems().add("ID: " + b.getBookId() + " | " + b.getTitle());
+            for (BorrowedBook b : studentUser.getBorrowedBooks()) {
+                borrowedList.getItems().add("ID: " + b.getBook().getBookId() + " | " + b.getBook().getTitle());
             }
             if (borrowedList.getItems().isEmpty()) {
                 borrowedList.getItems().add("You have no borrowed books.");
@@ -535,7 +550,8 @@ public class LibraryGUI extends Application {
 
                 for (Book b : system.getCatalog()) {
                     if (b.getTitle().equalsIgnoreCase(titleInput.getText().trim()) && b.getAuthor().equalsIgnoreCase(authorInput.getText().trim())) {
-                        messageLabel.setText("This exact book already exists in the catalog!"); messageLabel.setTextFill(Color.RED); return;
+                        messageLabel.setText("This exact book already exists in the catalog!"); messageLabel.setTextFill(Color.RED);
+                        return;
                     }
                 }
 
@@ -559,7 +575,7 @@ public class LibraryGUI extends Application {
             } catch (NumberFormatException ex) {
                 messageLabel.setText("Copies and Year must be actual numbers!"); messageLabel.setTextFill(Color.RED);
             } catch (InvalidBookDataException ex) {
-                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED); // Catches your custom error!
+                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
             }
         });
 

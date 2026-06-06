@@ -74,24 +74,22 @@ public class Book {
         if (availableCopies >= 0) {
             this.availableCopies = availableCopies;
         } else {
-            this.availableCopies = 0; // Safe fallback state
+            throw new InvalidBookDataException("Copies", String.valueOf(availableCopies), "Cannot be negative.");
         }
     }
 
-    public int getPublicationYear() {
-        return publicationYear;
-    }
 
-    /*
-      Ensures the publication year is valid and not set in the future.
-     */
+     //Ensures the publication year is valid and not set in the future.
     public void setPublicationYear(int publicationYear) throws InvalidBookDataException{
         int currentYear = Year.now().getValue();
-        if (publicationYear > 0 && publicationYear <= currentYear) {
+        if (publicationYear >= 1000 && publicationYear <= currentYear) {
             this.publicationYear = publicationYear;
         } else {
-            this.publicationYear = currentYear; // Safe default for invalid data
+            throw new InvalidBookDataException("Year", String.valueOf(publicationYear), "Must be between 1000 and " + currentYear + ".");
         }
+    }
+    public int getPublicationYear() {
+        return publicationYear;
     }
 
     @Override
