@@ -46,7 +46,7 @@ public class BookSearchEngine implements IBookSearch {
 
     /*
      Returns only books that match the given category exactly (case-insensitive).
-     Designed for dropdown selection, not keyword search.
+     Designed for dropdown selection,   not keyword search.
      */
     @Override
     public List<Book> filterByCategory(List<Book> books, String category) {

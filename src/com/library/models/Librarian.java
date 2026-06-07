@@ -15,7 +15,6 @@ public class Librarian extends User {
     }
 
 
-
     public String getStaffNumber() {
         return staffNumber;
     }
@@ -40,6 +39,7 @@ public class Librarian extends User {
             this.managedBooks.add(book);
         }
     }
+
     @Override
     public String toString() {
         return "Librarian: " + this.getName() + " (Staff #" + this.getStaffNumber() + ")";

@@ -1,9 +1,10 @@
 package com.library.services;
 
+import com.library.exceptions.FileStorageException;
 import com.library.models.*;
-import com.library.exceptions.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -37,35 +38,34 @@ public class FileManager {
             throw new FileStorageException("saving books to", BOOKS_FILE, e.getMessage());
         }
     }
-
     //Loading the Books method
-    public ArrayList<Book> loadBooks () throws Exception {
-            ArrayList<Book> loadedCatalog = new ArrayList<>();
-            File file = new File(BOOKS_FILE);
-            // Safety Check: If it's the very first time the exe is run, the file won't exist yet.
-            // We catch this so the program doesn't crash on day one.
-            if (!file.exists()) {
-                System.out.println("Notice: No existing books.txt found. Starting with an empty catalog.");
-                return loadedCatalog;
-            }
-            try (Scanner scanner = new Scanner(file)) {
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-                    // Chop the line of text into an array using the comma as the cut point
-                    loadedCatalog.add(getBook(line));
-                }
-                System.out.println("Success: Catalog successfully loaded from " + BOOKS_FILE);
-            } catch (Exception e) {
-                throw new FileStorageException("loading books from", BOOKS_FILE, e.getMessage());
-            }
+    public ArrayList<Book> loadBooks() throws Exception {
+        ArrayList<Book> loadedCatalog = new ArrayList<>();
+        File file = new File(BOOKS_FILE);
+        // Safety Check: If it's the very first time the exe is run, the file won't exist yet.
+        // We catch this so the program doesn't crash on day one.
+        if (!file.exists()) {
+            System.out.println("Notice: No existing books.txt found. Starting with an empty catalog.");
             return loadedCatalog;
         }
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                // Chop the line of text into an array using the comma as the cut point
+                loadedCatalog.add(getBook(line));
+            }
+            System.out.println("Success: Catalog successfully loaded from " + BOOKS_FILE);
+        } catch (Exception e) {
+            throw new FileStorageException("loading books from", BOOKS_FILE, e.getMessage());
+        }
+        return loadedCatalog;
+    }
 
     //helper method;
     // I didn't do the same helper method for other methods,as making them would be too messy
     // as they implement ArrayList and call for catalog and the line;
     // It works perfectly fine as for now !:)
-    private static Book getBook(String line) throws Exception{
+    private static Book getBook(String line) throws Exception {
         String[] data = line.split("\\|");//use | for everything except for transaction.txt, in case if the book name contains ","
         // Rebuild the Book object
         // Note to self: Make sure the order here matches the order
@@ -138,7 +138,7 @@ public class FileManager {
         try (PrintWriter out = new PrintWriter(TRANSACTIONS_FILE)) {
             for (Student student : students) {
                 for (BorrowedBook book : student.getBorrowedBooks()) {
-                    out.println(student.getUserId() + "," + book.getBook().getBookId() + ",BORROWED,"+book.getDueDate().toString());
+                    out.println(student.getUserId() + "," + book.getBook().getBookId() + ",BORROWED," + book.getDueDate().toString());
                 }
                 for (Book book : student.getReservedBooks()) {
                     out.println(student.getUserId() + "," + book.getBookId() + ",RESERVED");
@@ -151,7 +151,7 @@ public class FileManager {
                 }
             }
             System.out.println("Success: Transactions saved to " + TRANSACTIONS_FILE);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new FileStorageException("saving transactions to", TRANSACTIONS_FILE, e.getMessage());
         }
     }
@@ -210,8 +210,7 @@ public class FileManager {
                             // Safe fallback: If it's an old save file without dates, just borrow it normally
                             foundStudent.borrowBook(foundBook);
                         }
-                    }
-                    else if (status.equals("RESERVED")) {
+                    } else if (status.equals("RESERVED")) {
                         // Reservations haven't changed, they still just hold the normal Book object
                         foundStudent.addReserveBook(foundBook);
                     }
@@ -269,7 +268,7 @@ public class FileManager {
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                if(line.trim().isEmpty()) continue; // Prevent first-day errors, if the file was empty
+                if (line.trim().isEmpty()) continue; // Prevent first-day errors, if the file was empty
                 String[] data = line.split("\\|");
                 String name = data[0];
                 String userId = data[1];

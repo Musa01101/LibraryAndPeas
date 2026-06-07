@@ -1,20 +1,15 @@
+import com.library.exceptions.InvalidBookDataException;
 import com.library.models.*;
-import com.library.exceptions.*;
 import com.library.services.LibrarySystem;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
-import javafx.scene.layout.FlowPane;
 
 public class LibraryGUI extends Application {
 
@@ -289,7 +284,7 @@ public class LibraryGUI extends Application {
                 system.saveSystemData();
             }
             //Due date notifications
-            if( studentUser.isReceiveDueDateNotifs()){
+            if (studentUser.isReceiveDueDateNotifs()) {
                 int overdueCount = 0;
                 for (BorrowedBook bb : studentUser.getBorrowedBooks()) {
                     if (bb.isOverdue()) {
@@ -302,14 +297,13 @@ public class LibraryGUI extends Application {
                 }
             }
 
-        }
-        else if (currentUser instanceof Librarian) {
-            if(currentUser.isReceiveReservationNotifs()) {
+        } else if (currentUser instanceof Librarian) {
+            if (currentUser.isReceiveReservationNotifs()) {
                 int outOfStockCount = 0;
-                for(Book b : system.getCatalog()) {
+                for (Book b : system.getCatalog()) {
                     if (b.getAvailableCopies() == 0) outOfStockCount++;
                 }
-                if(outOfStockCount > 0) {
+                if (outOfStockCount > 0) {
                     showNotification("Inventory Alert: " + outOfStockCount + " book(s) are out of stock!", stage);
                 }
             }
@@ -467,22 +461,32 @@ public class LibraryGUI extends Application {
         Label addLabel = new Label("Add / Edit Book in Catalog");
         addLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
 
-        javafx.scene.layout.GridPane addForm = new javafx.scene.layout.GridPane();
-        addForm.setHgap(10); addForm.setVgap(10);
+        GridPane addForm = new GridPane();
+        addForm.setHgap(10);
+        addForm.setVgap(10);
 
-        TextField titleInput = new TextField(); titleInput.setPromptText("Title");
-        TextField authorInput = new TextField(); authorInput.setPromptText("Author");
+        TextField titleInput = new TextField();
+        titleInput.setPromptText("Title");
+        TextField authorInput = new TextField();
+        authorInput.setPromptText("Author");
         ComboBox<String> categoryInput = new ComboBox<>();
         categoryInput.getItems().addAll("Fiction", "Education", "Computer Science", "Science", "History");
         categoryInput.setPromptText("Select Category");
-        TextField copiesInput = new TextField(); copiesInput.setPromptText("Copies (e.g. 5)");
-        TextField yearInput = new TextField(); yearInput.setPromptText("Year (e.g. 2024)");
+        TextField copiesInput = new TextField();
+        copiesInput.setPromptText("Copies (e.g. 5)");
+        TextField yearInput = new TextField();
+        yearInput.setPromptText("Year (e.g. 2024)");
 
-        addForm.add(new Label("Title:"), 0, 0);    addForm.add(titleInput, 1, 0);
-        addForm.add(new Label("Author:"), 0, 1);   addForm.add(authorInput, 1, 1);
-        addForm.add(new Label("Category:"), 0, 2); addForm.add(categoryInput, 1, 2);
-        addForm.add(new Label("Copies:"), 2, 0);   addForm.add(copiesInput, 3, 0);
-        addForm.add(new Label("Year:"), 2, 1);     addForm.add(yearInput, 3, 1);
+        addForm.add(new Label("Title:"), 0, 0);
+        addForm.add(titleInput, 1, 0);
+        addForm.add(new Label("Author:"), 0, 1);
+        addForm.add(authorInput, 1, 1);
+        addForm.add(new Label("Category:"), 0, 2);
+        addForm.add(categoryInput, 1, 2);
+        addForm.add(new Label("Copies:"), 2, 0);
+        addForm.add(copiesInput, 3, 0);
+        addForm.add(new Label("Year:"), 2, 1);
+        addForm.add(yearInput, 3, 1);
 
         // --- TOP BUTTONS ---
         Button addBtn = new Button("Add Book");
@@ -523,13 +527,17 @@ public class LibraryGUI extends Application {
                 showNotification("Inventory Alert: " + outOfStockCount + " book(s) are out of stock!", (Stage) tab.getTabPane().getScene().getWindow());
             }
         };
-        tab.setOnSelectionChanged(event -> { if (tab.isSelected()) loadCatalog.run(); });
+        tab.setOnSelectionChanged(event -> {
+            if (tab.isSelected()) loadCatalog.run();
+        });
         loadCatalog.run();
 
         // --- BOTTOM BUTTONS ---
         HBox updateBox = new HBox(10);
         updateBox.setAlignment(Pos.CENTER_LEFT);
-        TextField qtyInput = new TextField(); qtyInput.setPromptText("Qty"); qtyInput.setPrefWidth(60);
+        TextField qtyInput = new TextField();
+        qtyInput.setPromptText("Qty");
+        qtyInput.setPrefWidth(60);
 
         Button addQtyBtn = new Button("Add Copies");
         Button removeQtyBtn = new Button("Remove Copies");
@@ -542,7 +550,9 @@ public class LibraryGUI extends Application {
         // --- BUTTON LOGIC ---
         addBtn.setOnAction(e -> {
             if (titleInput.getText().isEmpty() || categoryInput.getValue() == null) {
-                messageLabel.setText("Title and Category are required!"); messageLabel.setTextFill(Color.RED); return;
+                messageLabel.setText("Title and Category are required!");
+                messageLabel.setTextFill(Color.RED);
+                return;
             }
             try {
                 int copies = Integer.parseInt(copiesInput.getText());
@@ -550,7 +560,8 @@ public class LibraryGUI extends Application {
 
                 for (Book b : system.getCatalog()) {
                     if (b.getTitle().equalsIgnoreCase(titleInput.getText().trim()) && b.getAuthor().equalsIgnoreCase(authorInput.getText().trim())) {
-                        messageLabel.setText("This exact book already exists in the catalog!"); messageLabel.setTextFill(Color.RED);
+                        messageLabel.setText("This exact book already exists in the catalog!");
+                        messageLabel.setTextFill(Color.RED);
                         return;
                     }
                 }
@@ -560,7 +571,8 @@ public class LibraryGUI extends Application {
                     try {
                         int currentNum = Integer.parseInt(b.getBookId().replace("B", ""));
                         if (currentNum > maxId) maxId = currentNum;
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
                 String autoBookId = String.format("B%02d", maxId + 1);
                 String autoIsbn = "ISBN-" + (long) (Math.random() * 9000000000L + 1000000000L);
@@ -570,12 +582,19 @@ public class LibraryGUI extends Application {
                 system.saveSystemData();
                 loadCatalog.run();
 
-                messageLabel.setText("Successfully added! Assigned ID: " + autoBookId); messageLabel.setTextFill(Color.GREEN);
-                titleInput.clear(); authorInput.clear(); copiesInput.clear(); yearInput.clear(); categoryInput.setValue(null);
+                messageLabel.setText("Successfully added! Assigned ID: " + autoBookId);
+                messageLabel.setTextFill(Color.GREEN);
+                titleInput.clear();
+                authorInput.clear();
+                copiesInput.clear();
+                yearInput.clear();
+                categoryInput.setValue(null);
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Copies and Year must be actual numbers!"); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Copies and Year must be actual numbers!");
+                messageLabel.setTextFill(Color.RED);
             } catch (InvalidBookDataException ex) {
-                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
             }
         });
 
@@ -595,37 +614,51 @@ public class LibraryGUI extends Application {
                 }
 
                 if (title.isEmpty() || author.isEmpty() || category == null) {
-                    messageLabel.setText("All fields must be filled!"); messageLabel.setTextFill(Color.RED); return;
+                    messageLabel.setText("All fields must be filled!");
+                    messageLabel.setTextFill(Color.RED);
+                    return;
                 }
 
                 system.updateBookDetails(id, title, author, category, copies, year);
                 system.saveSystemData();
                 loadCatalog.run();
 
-                titleInput.clear(); authorInput.clear(); categoryInput.setValue(null); copiesInput.clear(); yearInput.clear();
+                titleInput.clear();
+                authorInput.clear();
+                categoryInput.setValue(null);
+                copiesInput.clear();
+                yearInput.clear();
                 currentEditId[0] = null;
                 saveChangesBtn.setDisable(true);
                 addBtn.setDisable(false);
 
-                messageLabel.setText("Successfully updated " + id + ": " + title); messageLabel.setTextFill(Color.GREEN);
+                messageLabel.setText("Successfully updated " + id + ": " + title);
+                messageLabel.setTextFill(Color.GREEN);
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Copies and Year must be valid numbers!"); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Copies and Year must be valid numbers!");
+                messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
             }
         });
 
         editBookBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null) {
-                messageLabel.setText("Select a book to edit first!"); messageLabel.setTextFill(Color.RED); return;
+                messageLabel.setText("Select a book to edit first!");
+                messageLabel.setTextFill(Color.RED);
+                return;
             }
             try {
                 String bookId = selected.substring(4, selected.indexOf(" |"));
 
                 Book target = null;
                 for (Book b : system.getCatalog()) {
-                    if (b.getBookId().equals(bookId)) { target = b; break; }
+                    if (b.getBookId().equals(bookId)) {
+                        target = b;
+                        break;
+                    }
                 }
 
                 // Security Check for Editing
@@ -650,14 +683,17 @@ public class LibraryGUI extends Application {
                     messageLabel.setTextFill(Color.BLUE);
                 }
             } catch (Exception ex) {
-                messageLabel.setText("Error loading book data."); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Error loading book data.");
+                messageLabel.setTextFill(Color.RED);
             }
         });
 
         addQtyBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null || qtyInput.getText().isEmpty()) {
-                messageLabel.setText("Select a book and enter a quantity!"); messageLabel.setTextFill(Color.RED); return;
+                messageLabel.setText("Select a book and enter a quantity!");
+                messageLabel.setTextFill(Color.RED);
+                return;
             }
             try {
                 int qty = Integer.parseInt(qtyInput.getText());
@@ -674,22 +710,27 @@ public class LibraryGUI extends Application {
                         system.clearReservations(b.getBookId());
                         system.saveSystemData();
                         loadCatalog.run();
-                        messageLabel.setText("Added " + qty + " copies to " + b.getTitle()); messageLabel.setTextFill(Color.GREEN);
+                        messageLabel.setText("Added " + qty + " copies to " + b.getTitle());
+                        messageLabel.setTextFill(Color.GREEN);
                         qtyInput.clear();
                         break;
                     }
                 }
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Quantity must be a number!"); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Quantity must be a number!");
+                messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
             }
         });
 
         removeQtyBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null || qtyInput.getText().isEmpty()) {
-                messageLabel.setText("Select a book and enter a quantity!"); messageLabel.setTextFill(Color.RED); return;
+                messageLabel.setText("Select a book and enter a quantity!");
+                messageLabel.setTextFill(Color.RED);
+                return;
             }
             try {
                 int qty = Integer.parseInt(qtyInput.getText());
@@ -704,34 +745,44 @@ public class LibraryGUI extends Application {
                 for (Book b : system.getCatalog()) {
                     if (b.getBookId().equals(bookId)) {
                         if (b.getAvailableCopies() - qty < 0) {
-                            messageLabel.setText("Cannot remove more copies than available!"); messageLabel.setTextFill(Color.RED); return;
+                            messageLabel.setText("Cannot remove more copies than available!");
+                            messageLabel.setTextFill(Color.RED);
+                            return;
                         }
                         b.setAvailableCopies(b.getAvailableCopies() - qty);
                         system.saveSystemData();
                         loadCatalog.run();
-                        messageLabel.setText("Removed " + qty + " copies from " + b.getTitle()); messageLabel.setTextFill(Color.GREEN);
+                        messageLabel.setText("Removed " + qty + " copies from " + b.getTitle());
+                        messageLabel.setTextFill(Color.GREEN);
                         qtyInput.clear();
                         break;
                     }
                 }
             } catch (NumberFormatException ex) {
-                messageLabel.setText("Quantity must be a number!"); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText("Quantity must be a number!");
+                messageLabel.setTextFill(Color.RED);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
             }
         });
 
         deleteBookBtn.setOnAction(e -> {
             String selected = catalogList.getSelectionModel().getSelectedItem();
             if (selected == null) {
-                messageLabel.setText("Select a book to delete first!"); messageLabel.setTextFill(Color.RED); return;
+                messageLabel.setText("Select a book to delete first!");
+                messageLabel.setTextFill(Color.RED);
+                return;
             }
             try {
                 String bookId = selected.substring(4, selected.indexOf(" |"));
 
                 Book target = null;
                 for (Book b : system.getCatalog()) {
-                    if (b.getBookId().equals(bookId)) { target = b; break; }
+                    if (b.getBookId().equals(bookId)) {
+                        target = b;
+                        break;
+                    }
                 }
 
                 // Security Check for Deletion
@@ -744,9 +795,11 @@ public class LibraryGUI extends Application {
                 system.removeBookFromSystem(bookId);
                 system.saveSystemData();
                 loadCatalog.run();
-                messageLabel.setText("Permanently deleted " + bookId + " from the catalog."); messageLabel.setTextFill(Color.GREEN);
+                messageLabel.setText("Permanently deleted " + bookId + " from the catalog.");
+                messageLabel.setTextFill(Color.GREEN);
             } catch (Exception ex) {
-                messageLabel.setText(ex.getMessage()); messageLabel.setTextFill(Color.RED);
+                messageLabel.setText(ex.getMessage());
+                messageLabel.setTextFill(Color.RED);
             }
         });
 
@@ -790,10 +843,10 @@ public class LibraryGUI extends Application {
 
         // The Available only books checkbox
         CheckBox availableOnlyBox = new CheckBox("Available Only");
+        CheckBox sortTitleBox = new CheckBox("Sort by Title");
         Button searchBtn = new Button("Search");
         Button clearBtn = new Button("View All");
-        searchBox.getChildren().addAll(new Label("Search:"), searchInput, filterBox, availableOnlyBox, searchBtn, clearBtn);
-
+        searchBox.getChildren().addAll(new Label("Search:"), searchInput, filterBox, availableOnlyBox, sortTitleBox, searchBtn, clearBtn);
         // --- CATALOG LIST ---
         ListView<String> displayList = new ListView<>();
         displayList.setPrefHeight(250);
@@ -856,6 +909,11 @@ public class LibraryGUI extends Application {
 
             // 4. Sort so available books are at the top
             foundBooks = searchEngine.prioritizeAvailableBooks(foundBooks);
+
+            //4.5 Sort by Title
+            if (sortTitleBox.isSelected()) {
+                foundBooks = searchEngine.sortByTitle(foundBooks);
+            }
 
             // 5. Display the results
             if (foundBooks.isEmpty()) {
@@ -1208,6 +1266,7 @@ public class LibraryGUI extends Application {
             }
         }
     }
+
     public static void main(String[] args) {
         launch(args);
     }

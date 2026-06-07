@@ -1,7 +1,8 @@
 package com.library.models;
 
+import com.library.exceptions.InvalidBookDataException;
+
 import java.time.Year;
-import com.library.exceptions.*;
 
 public class Book {
     private String bookId;
@@ -28,9 +29,9 @@ public class Book {
     }
 
 
-    public void setBookId(String bookId) {
-        this.bookId = bookId;
-    }
+//    //public void setBookId(String bookId) {
+//        this.bookId = bookId;
+//    }
 
     public String getTitle() {
         return title;
@@ -69,7 +70,7 @@ public class Book {
     }
 
 
-     // Prevents the library system from registering negative book copies.
+    // Prevents the library system from registering negative book copies.
     public void setAvailableCopies(int availableCopies) throws InvalidBookDataException {
         if (availableCopies >= 0) {
             this.availableCopies = availableCopies;
@@ -79,8 +80,8 @@ public class Book {
     }
 
 
-     //Ensures the publication year is valid and not set in the future.
-    public void setPublicationYear(int publicationYear) throws InvalidBookDataException{
+    //Ensures the publication year is valid and not set in the future.
+    public void setPublicationYear(int publicationYear) throws InvalidBookDataException {
         int currentYear = Year.now().getValue();
         if (publicationYear >= 1000 && publicationYear <= currentYear) {
             this.publicationYear = publicationYear;
@@ -88,6 +89,7 @@ public class Book {
             throw new InvalidBookDataException("Year", String.valueOf(publicationYear), "Must be between 1000 and " + currentYear + ".");
         }
     }
+
     public int getPublicationYear() {
         return publicationYear;
     }

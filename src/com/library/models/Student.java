@@ -15,8 +15,14 @@ public class Student extends User {
         this.reservedBooks = new ArrayList<Book>();
     }
 
-    public boolean hasPendingNotification() {return hasPendingNotification;}
-    public void setHasPendingNotification(boolean hasPendingNotification) {this.hasPendingNotification = hasPendingNotification;}
+    public boolean hasPendingNotification() {
+        return hasPendingNotification;
+    }
+
+    public void setHasPendingNotification(boolean hasPendingNotification) {
+        this.hasPendingNotification = hasPendingNotification;
+    }
+
     //helper method to check the ownership
     public boolean hasBorrowedBook(Book book) {
         for (BorrowedBook bb : borrowedBooks) {
@@ -55,8 +61,8 @@ public class Student extends User {
     public void giveBorrowedBook(Book book) {
         if (book != null) {
             // Loop through and find the specific wrapper holding this book
-            for(int i = 0; i < this.borrowedBooks.size(); i++) {
-                if(borrowedBooks.get(i).getBook().equals(book)) {
+            for (int i = 0; i < this.borrowedBooks.size(); i++) {
+                if (borrowedBooks.get(i).getBook().equals(book)) {
                     this.borrowedBooks.remove(i);
                     return;
                 }

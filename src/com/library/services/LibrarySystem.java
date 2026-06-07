@@ -1,15 +1,17 @@
 package com.library.services;
 
-import com.library.models.*;
 import com.library.exceptions.*;
+import com.library.models.*;
+
 import java.util.ArrayList;
+
 public class LibrarySystem {
     private ArrayList<Book> catalog;
     private ArrayList<Student> registeredStudents;
     private ArrayList<Librarian> registeredStaff;
-    private  ArrayList<StudyRoom> rooms = new ArrayList<>();
+    private ArrayList<StudyRoom> rooms = new ArrayList<>();
 
-    private  FileManager fileManager;
+    private FileManager fileManager;
 
     public LibrarySystem() {
         this.catalog = new ArrayList<>();
@@ -223,7 +225,7 @@ public class LibrarySystem {
         targetBook.setAvailableCopies(newCopies);
         targetBook.setPublicationYear(newYear);
 
-        System.out.println("System Update: " + targetBook.getBookId() +" "+ targetBook.getTitle()+" has been successfully updated.");
+        System.out.println("System Update: " + targetBook.getBookId() + " " + targetBook.getTitle() + " has been successfully updated.");
     }
 
     //  Manual Reservation Cancellation
@@ -247,7 +249,11 @@ public class LibrarySystem {
     public void clearReservations(String bookId) throws Exception {
         Book book = null;
 
-        try { book = findBookById(bookId); } catch (Exception e) { return; }
+        try {
+            book = findBookById(bookId);
+        } catch (Exception e) {
+            return;
+        }
 
         if (book.getAvailableCopies() > 0) {
             for (Student s : registeredStudents) {
@@ -282,6 +288,7 @@ public class LibrarySystem {
         target.setBooked(true);
         target.setOccupantId(userId);
     }
+
     public void leaveStudyRoom(String userId) throws Exception {
         for (StudyRoom room : rooms) {
             if (room.isBooked() && userId.equals(room.getOccupantId())) {
@@ -304,6 +311,7 @@ public class LibrarySystem {
         // If the loop finishes without returning, the student doesn't exist
         throw new UserNotFoundException(studentId, UserNotFoundException.LookupField.ID);
     }
+
     //    public User findUserById(String userId) throws Exception {
 //        // Scan students
 //        for (Student s : registeredStudents) {

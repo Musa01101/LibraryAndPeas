@@ -5,8 +5,13 @@ public class StudyRoom {
     private boolean isBooked;
     private String occupantId;
 
-    public String getOccupantId() { return occupantId; }
-    public void setOccupantId(String occupantId) { this.occupantId = occupantId; }
+    public String getOccupantId() {
+        return occupantId;
+    }
+
+    public void setOccupantId(String occupantId) {
+        this.occupantId = occupantId;
+    }
 
     public StudyRoom(int roomNumber) {
         this.roomNumber = roomNumber;

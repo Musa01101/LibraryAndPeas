@@ -1,4 +1,5 @@
 package com.library.models;
+
 import java.time.LocalDate;
 
 public class BorrowedBook {
@@ -17,14 +18,23 @@ public class BorrowedBook {
         this.dueDate = dueDate;
     }
 
-    public Book getBook() {return book;}
+    public Book getBook() {
+        return book;
+    }
 
-    public LocalDate getDueDate() {return dueDate;}
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
 
-    public void setDueDate(LocalDate dueDate) {this.dueDate = dueDate;}
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
 
     // Helper method to check if the book is overdue
-    public boolean isOverdue() {return LocalDate.now().isAfter(dueDate);}
+    public boolean isOverdue() {
+        return LocalDate.now().isAfter(dueDate);
+    }
+
     @Override
     public String toString() {
         return book.getTitle() + " (Due: " + dueDate.toString() + ")";
